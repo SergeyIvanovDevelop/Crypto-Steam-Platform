@@ -82,13 +82,15 @@ wsClient.on('close', async function() {
     try {
       await wsAddr1.send(JSON.stringify(connectionLostJSON));
       await wsAddr1.close();
-    } catch {
+      console.log('Sending lost connection to addr1 = ', addr1);
+    } catch (e) {
       console.log('Disconnected address #1 (creator of game): ', addr1);
     }
     try {
       await wsAddr2.send(JSON.stringify(connectionLostJSON));
       await wsAddr2.close();
-    } catch {
+      console.log('Sending lost connection to addr2 = ', addr2);
+    } catch (e) {
       console.log('Disconnected address #2 (joined user): ', addr2);
     }
     // Запрашиваем адресс соперника и отправляем ему оповещение

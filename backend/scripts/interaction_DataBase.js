@@ -171,8 +171,8 @@ async function getAddr(documentID, collectionName, addrNumber) {
         console.log('documentJSON.addr1 = ', documentJSON.addr1);
         return documentJSON.addr1;
     } else if(addrNumber == 2) {
-        console.log('documentJSON.addr1 = ', documentJSON.addr1);
-        return documentJSON.addr1;
+        console.log('documentJSON.addr2 = ', documentJSON.addr2);
+        return documentJSON.addr2;
     } else {
         var err = new Error("Wrong addrNumber");
         throw err;
