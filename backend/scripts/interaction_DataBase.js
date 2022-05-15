@@ -1,4 +1,5 @@
 const Server = require('./server');
+const Random = require('./random');
 async function ping() {
     await Server.db.command({ping: 1}, function(err, result){
         if(!err){
@@ -92,14 +93,10 @@ async function updateGameStarted(documentID, collectionName) {
     console.log('result = ', result);
 } 
 
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
-  }
-
 async function thinkNumber(documentID, collectionName) {
     const pendingGamesCollection = await Server.db.collection(collectionName);
     const filter = { _id: Server.ObjectId(documentID) };
-    const thinkedNumber_ = getRandomInt(10);
+    const thinkedNumber_ = Random.getRandomInt(10);
     const updateDoc = {
         $set: {
             thinkedNumber: thinkedNumber_,
