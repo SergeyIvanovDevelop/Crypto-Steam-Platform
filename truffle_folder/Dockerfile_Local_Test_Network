@@ -1,0 +1,16 @@
+FROM ubuntu:20.04
+RUN apt-get update && apt-get -y install curl dirmngr apt-transport-https lsb-release ca-certificates
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+RUN apt-get -y install nodejs && apt-get -y install gcc g++ make git
+RUN npm i --global truffle
+RUN mkdir /home/truffle_folder
+RUN mkdir /home/truffle_folder/Geth
+RUN cd /home/truffle_folder && npm init -y && truffle init && npm install @truffle/hdwallet-provider
+COPY contracts/* /home/truffle_folder/contracts/
+COPY migrations/* /home/truffle_folder/migrations/
+COPY test/* /home/truffle_folder/test/
+COPY truffle_config/truffle-config.js /home/truffle_folder/truffle-config.js
+COPY ./stop_truffle.js /home/truffle_folder/stop_truffle.js
+COPY ./run_tests.sh /home/truffle_folder/run_tests.sh
+#RUN cd /home/truffle_folder && echo -e "truffle test\ntruffle exec ./stop_truffle.js" | truffle develop #./run_tests.sh
+CMD cd /home/truffle_folder && echo -e "truffle migrate -f 2 --to 2 --reset --network develop" | truffle develop

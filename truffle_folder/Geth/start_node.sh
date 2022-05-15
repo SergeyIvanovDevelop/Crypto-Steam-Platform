@@ -1,0 +1,1 @@
+geth --etherbase "1260f974874cbb2c5a284d2a1625fc1e7f5d33b3" --datadir node1 --nodiscover --mine --minerthreads 1 --maxpeers 0 --verbosity 3 --networkid 98760 --rpc --rpcapi="db,eth,net,web3,personal,web3"   console
