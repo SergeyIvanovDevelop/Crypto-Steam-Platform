@@ -8,6 +8,6 @@ RUN mkdir /home/backend/scripts
 RUN mkdir /home/backend/tests
 COPY ./scripts/* /home/backend/scripts/
 COPY ./tests/* /home/backend/tests/
-RUN cd /home/backend/script && npm init -y && npm install ws && npm install --save-optional utf-8-validate && npm install express && npm install mongodb
+RUN cd /home/backend/scripts && npm init -y && npm install ws && npm install --save-optional utf-8-validate && npm install express && npm install mongodb
 RUN cd /home/backend/tests && npm init -y && jest
 CMD cd /home/backend/scripts && node server.js
