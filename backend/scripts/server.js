@@ -10,7 +10,7 @@ async function main() {
   const wsServerPerform = new WebSocket.Server({port: 9001});
   console.log('Server for games running on port 9001');
   wsServerPerform.on('connection', handlerFrontend.onConnectPerform);
-  const url = "mongodb://localhost:27017/";
+  const url = "mongodb://172.17.0.1:27017/";
   const mongoClient = new MongoClient(url);
   await mongoClient.connect();
   const db = mongoClient.db("admin");
