@@ -6,6 +6,8 @@ services:
      image: mongo:4.4
      ports:
        - "27017:27017"
+     extra_hosts:
+       - "host.docker.internal:host-gateway"
   ci_cd_blockchain_develop_backend:
      depends_on:
        - ci_cd_blockchain_develop_backend_mongodb
@@ -20,3 +22,5 @@ services:
        - "9000:9000"
        - "9001:9001"
        - "8081:8081"
+     extra_hosts:
+       - "host.docker.internal:host-gateway"
