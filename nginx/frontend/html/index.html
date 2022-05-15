@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=yes">
+    <title>Blockchain Games Agregator</title>
+    <link rel="stylesheet" href="index.css"/>
+    <link href="bootstrap.min.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" href="ethereum-gold_icon.png" />
+    <script language="javascript" type="text/javascript" src="jquery-3.6.0.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+  </head>
+
+  <body>
+      <div id="hiddenForm" class="content-blocker" style="display: none; ">
+        <div id="gameForm" class="centered">
+          <h3 id="statusGame" style="width: auto; text-align: -webkit-center; font-size: 1.25rem;"><strong>Waiting opponent...</strong></h3>
+          <div id="gameStarted" style="display: none; padding-top: 50px;">
+            <div style="align-content: center; padding-left: 10px;"> 
+              <h3 style="width: auto; text-align: -webkit-center; font-size: 1.25rem;">Enter your number (from 0 to 9):</h3>
+              <input class="form-control" type="text" value="" id="number" style="margin-bottom: 10px; color: purple;" >
+            </div>
+            <div style="padding-top: 10px; padding-bottom: 10px; padding-left: 10px;">
+              <input class="btn btn-primary btn-lg btn-block mb-3" id="sendNumberButton" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="SEND NUMBER" onclick="sendDigit();">
+            </div>
+          </div>
+        </div>
+        <div id="afterGameForm" class="centered" style="display: none">
+          <div style="align-content: center; display: flex; padding-top: 10px;">
+            <h3 style="width: 100%; text-align: -webkit-center; font-size: 1.75rem;"><strong>Game finished</strong></h3>
+          </div>
+          <div style="align-content: center; display: flex; padding-top: 50px;">
+            <h3 style="width: 100%; text-align: -webkit-center; font-size: 1.25rem; padding-right: 5px;">Winner address:</h3>
+            <h3 id="addrWin" style="width: 100%; text-align: -webkit-center; font-size: 1.25rem;"></h3>
+          </div>
+          <div style="align-content: center; display: flex;">
+            <h3 style="width: 100%; text-align: -webkit-center; font-size: 1.25rem;">Loser address: </h3>
+            <h3 id="addrLose" style="width: 100%; text-align: -webkit-center; font-size: 1.25rem;"></h3>
+          </div>
+          <div style="align-content: center; display: flex;">
+            <h3 style="width: 100%; text-align: -webkit-center; font-size: 1.25rem;">Winner chose digit: </h3>
+            <h3 id="digitWin" style="width: 100%; text-align: -webkit-center; font-size: 1.25rem;"></h3>
+          </div>
+          <div style="align-content: center; display: flex;">
+            <h3 style="width: 100%; text-align: -webkit-center; font-size: 1.25rem;">Loser chose digit: </h3>
+            <h3 id="digitLose" style="width: 100%; text-align: -webkit-center; font-size: 1.25rem;"></h3>
+          </div>
+          <div style="align-content: center; display: flex;">
+            <h3 style="width: 100%; text-align: -webkit-center; font-size: 1.25rem;">Server chose digit: </h3>
+            <h3 id="digitServer" style="width: 100%; text-align: -webkit-center; font-size: 1.25rem;"></h3>
+          </div>
+          <div style="align-content: center; display: flex;">
+            <h3 style="width: 100%; text-align: -webkit-center; font-size: 1.25rem;">Your status: </h3>
+            <h3 id="userStatus" style="width: 100%; text-align: -webkit-center; font-size: 1.25rem;"></h3>
+          </div>
+          <div style="padding-top: 30px; padding-bottom: 10px; padding-left: 10px;">
+            <input class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="CLOSE" onclick="hideGameForms();" id="createGameButton">
+          </div>
+        </div>
+
+      </div>  
+      <div class="generalClass" style="margin-bottom: 10px; padding-left: 10px; padding-top: 10px; ">
+        <div>
+          <div id="my_card" class="card" style="margin-top: 20px; margin-right: 20px; width: 90%;">
+            <div class="card-body">
+              <h4 id="title1" class="card-title" style="padding-bottom: 30px; text-align: center; "><strong>Create Game</strong></h4>
+              <div style="align-content: center; padding-left: 10px;"> 
+                <h3 style="width: auto; text-align: -webkit-center; font-size: 1.25rem;">WALLET ADDRESS:</h3>
+                <input class="form-control" type="text" value="" id="user_eth_address" style="margin-bottom: 10px; color: purple;" >
+              </div>
+              <div style="align-content: center; padding-left: 10px; padding-top: 10px;">
+                <h3 style="width: auto; text-align: -webkit-center; font-size: 1.25rem; padding-top: 10px; ">TOKEN:</h3>
+                <div id="1" class="select_wrap">
+                  <ul class="default_option">
+                      <li>
+                          <div class="option wbtc">
+                            <div class="icon"></div>
+                            <p>WBTC</p>
+                          </div>
+                      </li>
+                  </ul>
+                  <ul class="select_ul">
+                      <li>
+                          <div class="option wbtc">
+                            <div class="icon"></div>
+                            <p>WBTC</p>
+                          </div>
+                      </li>
+                      <li>
+                          <div class="option ethereum">
+                            <div class="icon"></div>
+                            <p>Ethereum</p>
+                          </div>  
+                      </li>
+                      <li>
+                          <div class="option theter">
+                            <div class="icon"></div>
+                            <p>Theter</p>
+                          </div>  
+                      </li>
+                      <li>
+                        <div class="option uniswap">
+                            <div class="icon"></div>
+                            <p>Uniswap</p>
+                          </div>
+                      </li>
+                  </ul>
+              </div>
+              </div>
+              
+              <div style="align-content: center; padding-left: 10px;"> 
+                <h3 id="amount1" style="width: auto; text-align: -webkit-center; font-size: 1.25rem;">AMOUNT:</h3>
+                <input class="form-control" type="text" value="" id="amount_of_token" style="margin-bottom: 10px; color: purple;">
+              </div>
+              <div id="checkbox1" style="display: none; align-content: center; padding-left: 10px;">
+                <input type="checkbox" id="scales" name="scales" >
+                <label for="scales">Agree to this amount</label>
+              </div> 
+              <div style="padding-top: 10px; padding-bottom: 10px; padding-left: 10px;">
+                <input id="button1" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="CREATE" onclick="gameCreateJoin();" id="createGameButton">
+              </div>
+            </div>
+          </div>
+          <div id="my_card" class="card" style="margin-top: 20px; margin-right: 20px; width: 90%;">
+            <div class="card-body">
+              <h4 class="card-title" style="padding-bottom: 20px; text-align: center; "><strong>Balance</strong></h4>
+              <div style="align-content: center; padding-left: 10px;"> 
+                <div class="select_wrap_2">
+                  <ul class="default_option_2">
+                      <li>
+                          <div class="option wbtc">
+                            <div class="icon"></div>
+                            <p>WBTC</p>
+                          </div>
+                      </li>
+                  </ul>
+                  <ul class="select_ul_2">
+                      <li>
+                          <div class="option wbtc">
+                            <div class="icon"></div>
+                            <p>WBTC</p>
+                          </div>
+                      </li>
+                      <li>
+                          <div class="option ethereum">
+                            <div class="icon"></div>
+                            <p>Ethereum</p>
+                          </div>  
+                      </li>
+                      <li>
+                          <div class="option theter">
+                            <div class="icon"></div>
+                            <p>Theter</p>
+                          </div>  
+                      </li>
+                      <li>
+                        <div class="option uniswap">
+                            <div class="icon"></div>
+                            <p>Uniswap</p>
+                          </div>
+                      </li>
+                  </ul>
+              </div>
+              </div>
+              <div style="align-content: center; display: flex;">
+                <h4 style="width: fit-content; color: darkblue; font-size: 20px; padding-left: 55px;">Amount:</h4>
+                <h4 id="thisTokenBalance" style="margin-bottom: 10px; padding-left: 10px; color: darkslategray; font-size: 20px;">136</h4> 
+              </div>
+              <div style="padding-top: 10px; padding-bottom: 10px; padding-left: 10px;">
+                <input id="button2" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="WITHDRAW" onclick="withdrawTokens();">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="padding-top: 10px; padding-bottom: 10px; padding-left: 10px; width: 70%;" >
+          <h1 id="logo-text-2" class="text-center" style="font-family: Font1; padding-bottom: 30px; font-size: 70px; color: red; margin-right: 20px;">Crypto STEAM</h1>   
+          <p class="text-center" style="font-family: Font2; font-size: 30px; color: cadetblue;">LIST OF PENDING GAMES</p>
+          <div id="listGames"></div>
+        </div>
+      </div>  
+    <script src="client_ws.js"></script>
+  </body>
+
+</html>

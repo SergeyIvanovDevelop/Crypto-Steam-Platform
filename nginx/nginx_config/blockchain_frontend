@@ -1,0 +1,10 @@
+server {
+	listen 8080;
+	
+	server_name _;
+	
+	location / {
+		root /var/www/html/blockchain_frontend/html;
+		index index.html;
+	}
+}

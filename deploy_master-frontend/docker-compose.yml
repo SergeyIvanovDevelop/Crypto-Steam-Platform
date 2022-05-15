@@ -1,0 +1,13 @@
+version: '3.2'
+
+services:
+  ci_cd_blockchain_master_frontend:
+     environment:
+       DOCKER_HUB_NAME: "tss45elcity/"
+       DOCKER_HUB_REPOSITORY: "repo_1"
+       TAG: ":blockchain_master-frontend_branch_v1"
+       FULL_NAME_IMAGE_FOR_DOCKERHUB: $$DOCKER_HUB_NAME$$DOCKER_HUB_REPOSITORY$$TAG
+     container_name: test_ci_cd_blockchain_master-frontend
+     image: tss45elcity/repo_1:blockchain_master-frontend_branch_v1
+     ports:
+       - "9999:80"
