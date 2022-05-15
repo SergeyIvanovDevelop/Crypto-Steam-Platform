@@ -163,6 +163,24 @@ async function isGameFinished(documentID, collectionName) {
     }
 } 
 
+async function getAddr(documentID, collectionName, addrNumber) {
+    const pendingGamesCollection = await Server.db.collection(collectionName);
+    const filter = { _id: Server.ObjectId(documentID) };
+    const documentJSON = await pendingGamesCollection.findOne(filter);
+    if (addrNumber == 1) {
+        console.log('documentJSON.addr1 = ', documentJSON.addr1);
+        return documentJSON.addr1;
+    } else if(addrNumber == 2) {
+        console.log('documentJSON.addr1 = ', documentJSON.addr1);
+        return documentJSON.addr1;
+    } else {
+        var err = new Error("Wrong addrNumber");
+        throw err;
+    }
+    
+}
+
+
 exports.ping = ping;
 exports.closeConnectionWithMongoDB = closeConnectionWithMongoDB;
 exports.addDocumentToCollection = addDocumentToCollection;
@@ -175,3 +193,4 @@ exports.thinkNumber = thinkNumber;
 exports.performedDigit = performedDigit;
 exports.updateGameFinished = updateGameFinished;
 exports.isGameFinished = isGameFinished;
+exports.getAddr = getAddr;

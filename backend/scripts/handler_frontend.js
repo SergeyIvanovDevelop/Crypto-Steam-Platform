@@ -52,23 +52,62 @@ wsClient.on('close', async function() {
 
   // Проверяем, завершена ли игра
   const gameId_ = gamesID.get(wsClient._socket.remotePort);
-  gamesID.delete(wsClient._socket.remotePort);
   const collectionName = "Pending_Games";
   const gameFinished = await MongoDB.isGameFinished(gameId_, collectionName);
   console.log('gameFinished_test = ', gameFinished);
   if (!gameFinished) {
+    // Удалить её из списка отображаемых
+    await MongoDB.updateGameStarted(gameId_, collectionName)
+    const addrWin_ = "nobody";
+    await MongoDB.updateGameFinished(gameId_, collectionName, addrWin_);
+    var addr1 = await MongoDB.getAddr(gameId_, collectionName, 1);
+    var addr2 = await MongoDB.getAddr(gameId_, collectionName, 2);
+
+    // Формируем JSON для отправки
+    // Для совместимости
+    var generalJSON_ = {};
+
+    var connectionLostJSON = { 
+      whatIsIt: 'opponentLostConnection',
+      generalJSON: generalJSON_ 
+    };
+
+    // Заппрашиваем WS игроков
+    const wsAddr1 = myServer.mapWSClients.get(addr1);
+    const wsAddr2 = myServer.mapWSClients.get(addr2);
+
+    myServer.mapWSClients.delete(addr1);
+    myServer.mapWSClients.delete(addr2);
+ 
+    try {
+      await wsAddr1.send(JSON.stringify(connectionLostJSON));
+      await wsAddr1.close();
+    } catch {
+      console.log('Disconnected address #1 (creator of game): ', addr1);
+    }
+    try {
+      await wsAddr2.send(JSON.stringify(connectionLostJSON));
+      await wsAddr2.close();
+    } catch {
+      console.log('Disconnected address #2 (joined user): ', addr2);
+    }
+    // Запрашиваем адресс соперника и отправляем ему оповещение
+    // Для упрошения по gameID запросим оба адреса и через try/catch отправим оповещение (чтобы программа не упала)
+
     // Значит соединение оборвалось во время игры и необходимо вернуть деньги (даже если был только один игрок пока в игре)
     // ...
     // Записать эти данные в блокчейн !
     // И чеки возврата тоже, все, все, все
     console.log('Return money to all users in this game ...');
   }
+  gamesID.delete(wsClient._socket.remotePort);
   });
 }
 
 // Это на будущее, вдруг пригодится
 async function processClientMessage(wsClient, message) {
   try {
+    
 
   } catch (error) {
     console.log('Error', error);
@@ -106,7 +145,7 @@ async function processClientMessagePerform(wsClient, message) {
           generalJSON: generalJSON_ 
         };
 
-        wsClient.send(JSON.stringify(createdGameJSON));
+        await wsClient.send(JSON.stringify(createdGameJSON));
         console.log('Created game with ID = ', gameID.toString());
 
         // Передать полученный ID в область видимости обработчика данного WebSocket-оединения
@@ -278,10 +317,10 @@ async function processClientMessagePerform(wsClient, message) {
         const wsLoser = myServer.mapWSClients.get(addrLose_);
 
         // Отправить JSON победителю
-        wsWinner.send(JSON.stringify(winDocumentJSON));
+        await wsWinner.send(JSON.stringify(winDocumentJSON));
 
         // Отправить JSON проигравшему
-        wsLoser.send(JSON.stringify(loseDocumentJSON));
+        await wsLoser.send(JSON.stringify(loseDocumentJSON));
 
         // Ожидание секунды на всякий случай, чтобы точно дошло
         setTimeout(function() {}, 1000);
