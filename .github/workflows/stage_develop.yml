@@ -1,0 +1,105 @@
+name: CI-stage-backend-develop
+
+on:
+  push:
+    branches:
+      - develop-backend
+
+env:
+  DOCKER_HUB_NAME: "tss45elcity/"
+  DOCKER_HUB_REPOSITORY: "repo_1"
+  TAG: ":blockchain_develop-backend_branch_v1"
+
+jobs:
+
+  tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+
+      - name: Install node.js (--version 12.x) part 1
+        run: sudo apt -y install curl dirmngr apt-transport-https lsb-release ca-certificates
+        
+      - name: Install node.js (--version 12.x) part 2
+        run: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+        
+      - name: Install node.js (--version 12.x) part 3
+        run: sudo apt -y install nodejs && sudo apt -y install gcc g++ make
+
+      - name: Install jest
+        run: npm i --global jest-cli 
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Unit Tests
+        run: cd backend/tests && jest
+
+
+  build_and_push_docker_container:
+    runs-on: ubuntu-latest
+    needs: tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: tss45elcity/repo_1
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          tags: ${{ env.DOCKER_HUB_NAME }}${{ env.DOCKER_HUB_REPOSITORY }}${{ env.TAG }}
+          context: ./backend
+          push: true
+          #tags: ${{ steps.meta.outputs.tags }}
+          #labels: ${{ steps.meta.outputs.labels }}
+        
+
+  deploy:
+    environment: stage
+    runs-on: ubuntu-latest
+    needs: build_and_push_docker_container
+
+    steps:
+      - uses: actions/checkout@master
+      - name: copy file via ssh password
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          #key: ${{ secrets.SSHKEY }}
+          source: "deploy_develop-backend/"
+          target: "api_develop_backend"
+          strip_components: 1
+
+      - name: Deploy to remote server via SSH action
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          #key: ${{ secrets.SSHKEY }}
+          script: |
+            # Run a new container from a new image
+            cd api_develop_backend
+            #echo ${{ secrets.PASSWORD }} | sudo -S docker stop test_ci_cd_blockchain_develop-backend_mongodb
+            #echo ${{ secrets.PASSWORD }} | sudo -S docker container rm test_ci_cd_blockchain_develop-backend_mongodb
+            #echo ${{ secrets.PASSWORD }} | sudo -S docker stop test_ci_cd_blockchain_develop-backend
+            #echo ${{ secrets.PASSWORD }} | sudo -S docker container rm test_ci_cd_blockchain_develop-backend
+            echo ${{ secrets.PASSWORD }} | sudo -S docker-compose -f docker-compose.yml stop
+            echo ${{ secrets.PASSWORD }} | sudo -S docker-compose -f docker-compose.yml rm -f
+            echo ${{ secrets.PASSWORD }} | sudo -S docker-compose -f docker-compose.yml pull
+            echo ${{ secrets.PASSWORD }} | sudo -S docker-compose -f docker-compose.yml up -d --force-recreate ci_cd_blockchain_develop_backend_mongodb
+            echo ${{ secrets.PASSWORD }} | sudo -S docker-compose -f docker-compose.yml up -d --force-recreate ci_cd_blockchain_develop_backend

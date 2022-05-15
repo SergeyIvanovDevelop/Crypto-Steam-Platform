@@ -1,0 +1,17 @@
+version: '3.2'
+
+services:
+  ci_cd_blockchain_master_backend_mongodb:
+     container_name: test_ci_cd_blockchain_master-backend_mongodb
+     image: mongo:4.4
+     ports:
+       - "27017:27017"
+  ci_cd_blockchain_master_backend:
+     depends_on:
+       - ci_cd_blockchain_master_backend_mongodb
+     environment:
+     container_name: test_ci_cd_blockchain_master-backend
+     image: tss45elcity/repo_1:blockchain_master-backend_branch_v1
+     ports:
+       - "9000:9000"
+       - "9001:9001"
