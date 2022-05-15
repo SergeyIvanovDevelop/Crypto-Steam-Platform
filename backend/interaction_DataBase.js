@@ -165,3 +165,16 @@ async function isGameFinished(documentID, collectionName) {
         return false;
     }
 } 
+
+exports.ping = ping;
+exports.closeConnectionWithMongoDB = closeConnectionWithMongoDB;
+exports.addDocumentToCollection = addDocumentToCollection;
+exports.getListJSON_AllPendingGames = getListJSON_AllPendingGames;
+exports.updateDocumentByIdAttach = updateDocumentByIdAttach;
+exports.getAddrOfRival = getAddrOfRival;
+exports.getDocumentById = getDocumentById;
+exports.updateGameStarted = updateGameStarted;
+exports.thinkNumber = thinkNumber;
+exports.performedDigit = performedDigit;
+exports.updateGameFinished = updateGameFinished;
+exports.isGameFinished = isGameFinished;
