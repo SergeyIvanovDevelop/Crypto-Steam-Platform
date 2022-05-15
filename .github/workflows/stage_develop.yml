@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Unit Tests
-        run: cd backend/tests && jest
+        run: cd backend/tests && npm init -y && jest
 
 
   build_and_push_docker_container:
