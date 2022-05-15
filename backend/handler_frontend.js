@@ -313,4 +313,24 @@ async function processClientMessagePerform(wsClient, message) {
     console.log('Error', error);
   }
 }
+
+async function sendUpdatedListPendingGames(wsClient) {
+  var resultJSON = await MongoDB.getListJSON_AllPendingGames();
+  var jsonStringResultJSON = JSON.stringify(resultJSON);
+  console.log(jsonStringResultJSON);
+  wsClient.send(jsonStringResultJSON);
+  sendUpdatedListPendingGamesTimeout(wsClient);
+}
+
+async function sendUpdatedListPendingGamesTimeout(wsClient) {
+    setTimeout(async function() { 
+      await sendUpdatedListPendingGames(wsClient);
+      console.log('List sent');
+    }, 10000);
+}
+
+
+exports.onConnect = onConnect;
+exports.onConnectPerform = onConnectPerform;
+exports.onConnprocessClientMessageect = processClientMessage;
   
