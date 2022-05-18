@@ -798,30 +798,6 @@ var cryptoSteamContractABI = [
         },
         {
           "internalType": "address",
-          "name": "addressUser",
-          "type": "address"
-        }
-      ],
-      "name": "getBalanceCST",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "addressContractERC20",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
           "name": "addressSender",
           "type": "address"
         },
@@ -871,7 +847,13 @@ var cryptoSteamContractABI = [
         }
       ],
       "name": "emitBetCreate",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -899,7 +881,13 @@ var cryptoSteamContractABI = [
         }
       ],
       "name": "emitBetJoin",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -947,7 +935,13 @@ var cryptoSteamContractABI = [
         }
       ],
       "name": "emitRefundTokens",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -970,21 +964,63 @@ var cryptoSteamContractABI = [
         }
       ],
       "name": "emitBetFinish",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [],
       "name": "stopContract",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [],
       "name": "startContract",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addressContractERC20",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "addressUser",
+          "type": "address"
+        }
+      ],
+      "name": "getBalanceCST",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     }
