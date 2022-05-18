@@ -220,7 +220,7 @@ async function checkEnought(chosenCrypto, amountTokens, chosenGameKindToken, cho
    $.ajax({
      contentType: 'application/json',
      url: `http://${NodeAddress}:8080/getPrices/`,
-     method: 'get',             
+     method: 'post',             
      dataType: 'json',         
      data: JSON.stringify(data_),     
      processData: false,
