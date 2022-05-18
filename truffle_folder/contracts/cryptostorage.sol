@@ -1,4 +1,4 @@
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity ^0.8.0;
 
 import "./cryptomathadd.sol";
 import "./cryptomathsub.sol";
@@ -12,7 +12,7 @@ contract CryptoStorage is CryptoMathAdd, CryptoMathSub {
     	uint256 amountEth
     );
 
-    function() external payable { 
+    fallback() external payable { 
     	emit ReceiveEth(msg.value);
     }
     

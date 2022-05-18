@@ -60,12 +60,12 @@ module.exports = {
      },
      rinkeby: {
       provider: function() { 
-       return new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/v3/0013a067f2f049a598ecb8e0ca0c388b");
+       return new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/v3/211015611c0a4b4baa0747b15079861b"); //"https://rinkeby.infura.io/v3/0013a067f2f049a598ecb8e0ca0c388b");
       },
       network_id: 4,
-      gas: 4500000,
-      gasPrice: 10000000000,
-      from: "0xEaA82262bE1A8Edf4742e4C2A45E308eb9A8D5cC",        // Account to send txs from (default: accounts[0])
+      //gas:28000000, 
+      //gasPrice: 62450006000,
+      from: "0xEaA82262bE1A8Edf4742e4C2A45E308eb9A8D5cC",        // Адрес создателя контракта
       websocket: true
      }
     // Another network with more advanced options...
@@ -104,7 +104,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.4.25", //"0.8.13",      // Fetch exact version from solc-bin (default: truffle's version)
+      version: "0.8.4", //">=0.4.22 <0.9.0", //"0.8.0",      // Fetch exact version from solc-bin (default: truffle's version)
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
       // settings: {          // See the solidity docs for advice about optimization and evmVersion
       //  optimizer: {
