@@ -205,23 +205,59 @@ async function gameCreateJoin() {
 }
 
 // Обработка выбора криптовалюты
-$(".default_option").click(function(){
+$(".default_option").click(function() {
   $(this).parents().toggleClass("active"); //Развернуть выпадающий список
 })
 
 async function checkEnought(chosenCrypto, amountTokens, chosenGameKindToken, chosenGameAmountToken) {
+   var numberUSDTperOneToken0;
+   var numberUSDTperOneToken1;
+   // Получается на сервере просто 2 раза будет вызываться: 
+                                                          // (token0, usdt) ---> numberUSDTperOneToken0 = array[0]
+                                                          // (token1, usdt) ---> numberUSDTperOneToken1 = array[0]
 
-  // Обращается к оракулу или использует протокол Uniswap чтобы узнать актуальные цены на токены и понять равносильны ли ставки или нет
-  // ...
+   var data_ = { "addressToken0" : chosenCrypto, "addressToken1" : chosenGameKindToken };
+   $.ajax({
+     contentType: 'application/json',
+     url: `http://${NodeAddress}:8080/getPrices/`,
+     method: 'get',             
+     dataType: 'json',         
+     data: JSON.stringify(data_),     
+     processData: false,
+     success: async function(data){            
+       numberUSDTperOneToken0 = data.numberUSDTperOneToken0;
+       numberUSDTperOneToken0 = data.numberUSDTperOneToken0;
+     },
+     async: false
+   });
+   var BetUSDTToken0 = numberUSDTperOneToken0 * amountTokens;
+   var BetUSDTToken1 = numberUSDTperOneToken1 * chosenGameAmountToken;
+   var allowGap = 1;
+   var enoughJSON;
+   enoughJSON.userDeposit = BetUSDTToken0;
+   enoughJSON.opponentDeposit = BetUSDTToken1;
+   if ((BetUSDTToken0) >= (BetUSDTToken1)) {
+    if ((BetUSDTToken0 - BetUSDTToken1) > allowGap) {
+      // Сформировать JSON, что данный пользователь ставит много больше денег, чем его оппонент
+      enoughJSON.isEnough = 'lot';
+    } else {
+      // Сформировать JSON, что ставки примерно равны
+      enoughJSON.isEnough = 'norm';
+    }
+   } else {
+    // Сформировать JSON, что ставка пользователя мала
+    enoughJSON.isEnough = 'few';
+   }
 
-  // Заглушка пока что тут будет
-  var enoghtJSON = {
-    isEnough: 'norm',
-    userDeposit: 12,
-    opponentDeposit: 10
-  }
-  return enoghtJSON;
-}
+    // Заглушка пока что тут будет
+    enoughJSON = {
+      isEnough: 'norm',
+      userDeposit: 12,
+      opponentDeposit: 10
+    }
+
+    return enoughJSON;
+ }
 
 $(".select_ul li").click( async function(){
   var currentele = $(this).html();
