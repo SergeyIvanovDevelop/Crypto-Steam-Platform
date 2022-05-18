@@ -307,6 +307,7 @@ exports.stopContract = stopContract;
 exports.startContract = startContract;
 exports.getBalanceCST = getBalanceCST;
 exports.getTokensPrices = getTokensPrices;
+exports.ChainId = ChainId;
 
 
 

@@ -4,6 +4,8 @@ const MongoClient = require("mongodb").MongoClient;
 var ObjectId = require('mongodb').ObjectId; 
 const Web3 = require('web3');
 const CryptoSteamABI = require('./CryptoSteamABI');
+const express = require('express');
+var cors = require('cors');
 const addressContractCST = "";
 
 async function main() {
@@ -23,6 +25,14 @@ async function main() {
   console.log("Web3 loaded");
   console.log("web3.version = ", web3.version);
   const CSTContract = new Server.web3.eth.Contract(CryptoSteamABI.CryptoSteamABI, addressContractCST);
+  const app = express();
+  const PORT = 8080;
+  app.use(express.json());
+  app.use(cors());
+  app.listen(PORT, () => console.log(`Express server currently running on port ${PORT}`));
+
+
+
 
   exports.mongoClient = mongoClient;
   exports.ObjectId = ObjectId;
@@ -31,6 +41,7 @@ async function main() {
   exports.web3 = web3;
   exports.CSTContract = CSTContract;
   exports.CryptoSteamABI.CryptoSteamABI = CryptoSteamABI;
+  exports.app = app;
 }
 
 main();

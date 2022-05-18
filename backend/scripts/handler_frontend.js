@@ -4,6 +4,25 @@ const MongoDB = require('./interaction_DataBase');
 const Blockchain = require('./web3_part');
 const gamesID = new Map();
 
+myServer.app.post('/getPrices', (request, response) => {
+    const addressToken0 = request.body.addressToken0;
+    const addressToken1 = request.body.addressToken1;
+    const decimalToken0 = 18;
+    const decimalToken1 = 18;
+    const chainIdToken0 = Blockchain.ChainId.RINKEBY;
+    const chainIdToken1 = Blockchain.ChainId.RINKEBY;
+    const contractAddressUSDT = "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa";
+    var prices = Blockchain.getTokensPrices(addressToken0, decimalToken0, chainIdToken0, contractAddressUSDT, decimalToken1, chainIdToken1);
+    var numberUSDTperOneToken0 = prices[0];
+    prices = Blockchain.getTokensPrices(addressToken1, decimalToken0, chainIdToken0, contractAddressUSDT, decimalToken1, chainIdToken1);
+    var numberUSDTperOneToken1 = prices[0];
+    response.status(200);
+    response.json({
+            "numberUSDTperOneToken0": numberUSDTperOneToken0,
+            "numberUSDTperOneToken1": numberUSDTperOneToken1
+        });
+});
+
 async function onConnect(wsClient) {
   console.log('New Client.');
   await MongoDB.ping();
