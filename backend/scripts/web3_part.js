@@ -5,8 +5,8 @@ const Server = require('./server');
 const unlock_password = "";
 const creatorCSTAddress = "";
 
-async function unclockAcc(userAccount, unlock_password) {
-    var unlocked = await web3.eth.personal.unlockAccount(userAccount, unlock_password, 600);
+async function unclockAcc(userAddress, unlockPassword) {
+    var unlocked = await web3.eth.personal.unlockAccount(userAddress, unlockPassword, 600);
     return unlocked;
 }
 
@@ -294,5 +294,19 @@ async function getTokensPrices(addressToken0, decimalToken0, chainIdToken0, addr
   // Если мы будем всегда передавать в качестве addressToken1 - USDT, то тогда на нужно будет использовать numberOfToken0perOneToken1, т.е. array[0]
   return [numberOfToken0perOneToken1, numberOfToken1perOneToken0];
 }
+
+exports.unclockAcc = unclockAcc;
+exports.sendERC20Tokens = sendERC20Tokens;
+exports.putOnWrappedERC20TokensInCSTContract = putOnWrappedERC20TokensInCSTContract;
+exports.withdrawWrappedERC20TokensInCSTContract = withdrawWrappedERC20TokensInCSTContract;
+exports.transferWrappedERC20TokensToAnotherAddressInCSTContract = transferWrappedERC20TokensToAnotherAddressInCSTContract;
+exports.emitBetCreate = emitBetCreate;
+exports.emitRefundTokens = emitRefundTokens;
+exports.emitBetFinish = emitBetFinish;
+exports.stopContract = stopContract;
+exports.startContract = startContract;
+exports.getBalanceCST = getBalanceCST;
+exports.getTokensPrices = getTokensPrices;
+
 
 

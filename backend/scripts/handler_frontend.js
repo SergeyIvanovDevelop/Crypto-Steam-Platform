@@ -1,6 +1,7 @@
 const { Server } = require('ws');
 const myServer = require('./server');
 const MongoDB = require('./interaction_DataBase');
+const Blockchain = require('./web3_part');
 const gamesID = new Map();
 
 async function onConnect(wsClient) {
