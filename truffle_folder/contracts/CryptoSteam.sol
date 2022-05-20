@@ -74,10 +74,11 @@ contract CryptoSteam is CryptoStorage, ERC20('CryptoSteamToken', 'CST') {
 
     event startContractCST ();
 
-	constructor (address testMetaMaskWalletAddressRinkeby) public {
+	constructor (address testMetaMaskWalletAddressRinkeby1, address testMetaMaskWalletAddressRinkeby2) public {
         // В данной версии ERC20 от openzeppelin _totalSupply не ограничен (при _mint для конкретного пользователя(адреса) общее количество выпущенных токенов увеличивается, при _burn - уменьшается)
         _mint(msg.sender, 9000000000000000000); // Для тестирования нужны
-        _mint(testMetaMaskWalletAddressRinkeby, 9000000000000000000); // Для тестирования нужны
+        _mint(testMetaMaskWalletAddressRinkeby1, 9000000000000000000); // Для тестирования нужны
+        _mint(testMetaMaskWalletAddressRinkeby2, 9000000000000000000); // Для тестирования нужны
         smartContractCSTAddress = address(this);
     }
 
@@ -110,6 +111,18 @@ contract CryptoSteam is CryptoStorage, ERC20('CryptoSteamToken', 'CST') {
         _balancesCST[addressSender][addressContractERC20] = _balancesCST[addressSender][addressContractERC20] - amountTokens; // SafeMath не использую, т.к. версия Solidity >=0.8.0
         _balancesCST[addressReceiver][addressContractERC20] = _balancesCST[addressReceiver][addressContractERC20] + amountTokens; // SafeMath не использую, т.к. версия Solidity >=0.8.0
         emit transferWERC20(addressContractERC20, addressSender, addressReceiver, amountTokens);
+        return true;
+    }
+
+    function transferWrappedERC20TokensFromCSTtoUsers(address addressContractERC20, address addressReceiver, uint amountTokens) public onlyOwner() returns (bool) { // Только пользователь-владелец может списывать обернутые токены со своего счета
+        require(addressContractERC20 != address(0), "addressContractERC20 must be valid");
+        require(addressContractERC20 != address(0), "addressContractERC20 must be valid");
+        require(addressReceiver != address(0), "addressReceiver must be valid");
+        require(amountTokens > 0, "amountTokens must be > 0");
+        require(amountTokens <= _balancesCST[address(this)][addressContractERC20], "There are not enough tokens on the account");
+        _balancesCST[address(this)][addressContractERC20] = _balancesCST[address(this)][addressContractERC20] - amountTokens; // SafeMath не использую, т.к. версия Solidity >=0.8.0
+        _balancesCST[addressReceiver][addressContractERC20] = _balancesCST[addressReceiver][addressContractERC20] + amountTokens; // SafeMath не использую, т.к. версия Solidity >=0.8.0
+        emit transferWERC20(addressContractERC20, address(this), addressReceiver, amountTokens);
         return true;
     }
 
@@ -159,7 +172,7 @@ contract CryptoSteam is CryptoStorage, ERC20('CryptoSteamToken', 'CST') {
         return true;
     }
 
-    function getBalanceCST(address addressContractERC20, address addressUser) public returns(uint) {
+    function getBalanceCST(address addressContractERC20, address addressUser) public view returns(uint) {
         require(addressContractERC20 != address(0), "addressContractERC20 must be valid");
         require(addressUser != address(0), "addressUser must be valid");
         return _balancesCST[addressUser][addressContractERC20];
