@@ -67,11 +67,14 @@
               <h4 id="title1" class="card-title" style="padding-bottom: 30px; text-align: center; "><strong>Create Game</strong></h4>
               <div style="align-content: center; padding-left: 10px;"> 
                 <h3 style="width: auto; text-align: -webkit-center; font-size: 1.25rem;">WALLET ADDRESS:</h3>
-                <input class="form-control" type="text" value="" id="user_eth_address" style="margin-bottom: 10px; color: purple;" >
+                <input disabled class="form-control" type="text" value="" id="user_eth_address" style="margin-bottom: 10px; color: purple;" >
+                <div style="padding-top: 10px; padding-bottom: 10px;">
+                <input id="connect Wallet" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="CONNECT WALLET" onclick="connectMetaMaskWallet();" id="connectWallet">
+                </div>
               </div>
               <div style="align-content: center; padding-left: 10px; padding-top: 10px;">
-                <h3 style="width: auto; text-align: -webkit-center; font-size: 1.25rem; padding-top: 10px; ">TOKEN:</h3>
-                <div id="1" class="select_wrap">
+                <h3 id="titleToken1" style="width: auto; text-align: -webkit-center; font-size: 1.25rem; padding-top: 10px; ">TOKEN:</h3>
+                <div id="cryptoList1"  class="select_wrap">
                   <ul class="default_option">
                       <li>
                           <div class="option wbtc">
@@ -90,7 +93,7 @@
                       <li>
                           <div class="option ethereum">
                             <div class="icon"></div>
-                            <p>Ethereum</p>
+                            <p>WETH</p>
                           </div>  
                       </li>
                       <li>
@@ -108,25 +111,48 @@
                   </ul>
               </div>
               </div>
-              
+
+              <div style="align-content: center; padding-bottom: 10px; padding-left: 10px;"> 
+                <h3 style="width: auto; text-align: -webkit-center; font-size: 1.25rem;">TOKEN CONTRACT ADDRESS:</h3>
+                <input disabled class="form-control" type="text" value="0x577D296678535e4903D59A4C929B718e1D575e0A" id="contractTokenAddressCreateJoin" style="margin-bottom: 10px; color: purple;">
+                <div id="checkboxCustomTokenCreateJoin" style="align-content: center; padding-left: 5px;">
+                  <input type="checkbox" id="scales" name="scales" >
+                  <label for="scales">Enter address token manually</label>
+                </div>
+                <div id="tokenInfo" style="align-content: center; display: none; padding-top: 10px;">
+                  <div style="align-content: center; display: flex;">
+                    <h4 style="width: fit-content; color: darkblue; font-size: 20px; padding-left: 55px;">TOKEN NAME:</h4>
+                    <h4 id="tokenName" style="margin-bottom: 10px; padding-left: 10px; color: darkslategray; font-size: 20px;">Wrapped BTC</h4> 
+                  </div>
+                  <div style="align-content: center; display: flex;">
+                    <h4 style="width: fit-content; color: darkblue; font-size: 20px; padding-left: 55px;">TOKEN SYMBOL:</h4>
+                    <h4 id="tokenSymbol" style="margin-bottom: 10px; padding-left: 10px; color: darkslategray; font-size: 20px;">WBTC</h4> 
+                  </div> 
+                  <div style="align-content: center; display: flex;">
+                    <h4 style="width: fit-content; color: darkblue; font-size: 20px; padding-left: 55px;">TOKEN DECIMALS:</h4>
+                    <h4 id="tokenDecimals" style="margin-bottom: 10px; padding-left: 10px; color: darkslategray; font-size: 20px;">8</h4> 
+                  </div> 
+                </div>
+              </div>
               <div style="align-content: center; padding-left: 10px;"> 
                 <h3 id="amount1" style="width: auto; text-align: -webkit-center; font-size: 1.25rem;">AMOUNT:</h3>
                 <input class="form-control" type="text" value="" id="amount_of_token" style="margin-bottom: 10px; color: purple;">
               </div>
-              <div id="checkbox1" style="display: none; align-content: center; padding-left: 10px;">
+              <div id="checkbox1" style="display: none; align-content: center; padding-left: 5px;">
                 <input type="checkbox" id="scales" name="scales" >
                 <label for="scales">Agree to this amount</label>
               </div> 
               <div style="padding-top: 10px; padding-bottom: 10px; padding-left: 10px;">
-                <input id="button1" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="CREATE" onclick="gameCreateJoin();" id="createGameButton">
+                <input disabled id="button1" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="CREATE" onclick="gameCreateJoin();" id="createGameButton">
               </div>
             </div>
           </div>
           <div id="my_card" class="card" style="margin-top: 20px; margin-right: 20px; width: 90%;">
             <div class="card-body">
               <h4 class="card-title" style="padding-bottom: 20px; text-align: center; "><strong>Balance</strong></h4>
-              <div style="align-content: center; padding-left: 10px;"> 
-                <div class="select_wrap_2">
+              <div style="align-content: center; padding-left: 10px;">
+                <h3 id="titleToken2" style="width: auto; text-align: -webkit-center; font-size: 1.25rem; padding-top: 10px; ">TOKEN:</h3> 
+                <div id="cryptoList2" class="select_wrap_2">
                   <ul class="default_option_2">
                       <li>
                           <div class="option wbtc">
@@ -145,7 +171,7 @@
                       <li>
                           <div class="option ethereum">
                             <div class="icon"></div>
-                            <p>Ethereum</p>
+                            <p>WETH</p>
                           </div>  
                       </li>
                       <li>
@@ -162,25 +188,50 @@
                       </li>
                   </ul>
               </div>
+              <div style="align-content: center; padding-bottom: 10px; padding-left: 10px;"> 
+                <h3 style="width: auto; text-align: -webkit-center; font-size: 1.25rem;">TOKEN CONTRACT ADDRESS:</h3>
+                <input disabled class="form-control" type="text" value="0x577D296678535e4903D59A4C929B718e1D575e0A" id="contractTokenAddressBalance" style="margin-bottom: 10px; color: purple;">
+                <div id="checkboxCustomTokenBalance" style="align-content: center; padding-left: 5px;">
+                  <input type="checkbox" id="scales2" name="scales2" >
+                  <label for="scales2">Enter address token manually</label>
+                </div>
+                <div id="tokenInfo2" style="align-content: center; display: none; padding-top: 10px;">
+                  <div style="align-content: center; display: flex;">
+                    <h4 style="width: fit-content; color: darkblue; font-size: 20px; padding-left: 55px;">TOKEN NAME:</h4>
+                    <h4 id="tokenName2" style="margin-bottom: 10px; padding-left: 10px; color: darkslategray; font-size: 20px;">Wrapped BTC</h4> 
+                  </div>
+                  <div style="align-content: center; display: flex;">
+                    <h4 style="width: fit-content; color: darkblue; font-size: 20px; padding-left: 55px;">TOKEN SYMBOL:</h4>
+                    <h4 id="tokenSymbol2" style="margin-bottom: 10px; padding-left: 10px; color: darkslategray; font-size: 20px;">WBTC</h4> 
+                  </div> 
+                  <div style="align-content: center; display: flex;">
+                    <h4 style="width: fit-content; color: darkblue; font-size: 20px; padding-left: 55px;">TOKEN DECIMALS:</h4>
+                    <h4 id="tokenDecimals2" style="margin-bottom: 10px; padding-left: 10px; color: darkslategray; font-size: 20px;">8</h4> 
+                  </div> 
+                </div> 
               </div>
-              <div style="align-content: center; display: flex;">
-                <h4 style="width: fit-content; color: darkblue; font-size: 20px; padding-left: 55px;">Amount:</h4>
-                <h4 id="thisTokenBalance" style="margin-bottom: 10px; padding-left: 10px; color: darkslategray; font-size: 20px;">136</h4> 
               </div>
-              <div style="padding-top: 10px; padding-bottom: 10px; padding-left: 10px;">
-                <input id="button2" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="WITHDRAW" onclick="withdrawTokens();">
+              <div style="align-content: center; padding-left: 10px;"> 
+                <h3 style="width: auto; text-align: -webkit-center; font-size: 1.25rem;">AMOUNT:</h3>
+                <input class="form-control" type="text" value="" id="thisTokenBalance" style="margin-bottom: 10px; color: purple;">
+              </div>
+              <div style="padding-top: 10px; padding-left: 10px;">
+                <input disabled id="depositButton" class="btn btn-primary btn-lg btn-block mb-3" style="display: none; background-color: #437881b8; border-color: #757e87;" type="submit" value="DEPOSIT" onclick="depositTokens();">
+              </div>
+              <div style="padding-top: 5px; padding-bottom: 10px; padding-left: 10px;">
+                <input disabled id="button2" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="WITHDRAW" onclick="withdrawTokens();">
               </div>
             </div>
           </div>
         </div>
-        <div style="padding-top: 10px; padding-bottom: 10px; padding-left: 10px; width: 70%;" >
+        <div style="padding-top: 10px; padding-bottom: 10px; padding-left: 10px; width: 50%;" >
           <h1 id="logo-text-2" class="text-center" style="font-family: Font1; padding-bottom: 30px; font-size: 70px; color: red; margin-right: 20px;">Crypto STEAM</h1>   
           <p class="text-center" style="font-family: Font2; font-size: 30px; color: cadetblue;">LIST OF PENDING GAMES</p>
           <div id="listGames"></div>
         </div>
       </div>
-    <script src="CryptoSteamABI.js"></script> 
-    <script src="web3_part.js"></script>   
+    <script src="CryptoSteamABI_client.js"></script> 
+    <script src="web3_part_client.js"></script>   
     <script src="client_ws.js"></script>
   </body>
 
