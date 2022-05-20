@@ -4,25 +4,6 @@ const MongoDB = require('./interaction_DataBase');
 const Blockchain = require('./web3_part');
 const gamesID = new Map();
 
-myServer.app.post('/getPrices', (request, response) => {
-    const addressToken0 = request.body.addressToken0;
-    const addressToken1 = request.body.addressToken1;
-    const decimalToken0 = 18;
-    const decimalToken1 = 18;
-    const chainIdToken0 = Blockchain.ChainId.RINKEBY;
-    const chainIdToken1 = Blockchain.ChainId.RINKEBY;
-    const contractAddressUSDT = "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa";
-    var prices = Blockchain.getTokensPrices(addressToken0, decimalToken0, chainIdToken0, contractAddressUSDT, decimalToken1, chainIdToken1);
-    var numberUSDTperOneToken0 = prices[0];
-    prices = Blockchain.getTokensPrices(addressToken1, decimalToken0, chainIdToken0, contractAddressUSDT, decimalToken1, chainIdToken1);
-    var numberUSDTperOneToken1 = prices[0];
-    response.status(200);
-    response.json({
-            "numberUSDTperOneToken0": numberUSDTperOneToken0,
-            "numberUSDTperOneToken1": numberUSDTperOneToken1
-        });
-});
-
 async function onConnect(wsClient) {
   console.log('New Client.');
   await MongoDB.ping();
@@ -73,32 +54,47 @@ wsClient.on('close', async function() {
   // Проверяем, завершена ли игра
   const gameId_ = gamesID.get(wsClient._socket.remotePort);
   const collectionName = "Pending_Games";
-  const gameFinished = await MongoDB.isGameFinished(gameId_, collectionName);
+  var gameFinished;
+  try {
+    gameFinished = await MongoDB.isGameFinished(gameId_, collectionName);
+  } catch {
+    gameFinished = false;
+  }
   console.log('gameFinished_test = ', gameFinished);
+
+  // Получить полный JSON
+  const fullDocumentJSON = await MongoDB.getDocumentById(gameId_, collectionName);
+  console.log('Connection_fullDocument = ', fullDocumentJSON);
+
+
+  // Если игра не завершилась, значит тут будет возврат средств
   if (!gameFinished) {
-    // Удалить её из списка отображаемых
-    await MongoDB.updateGameStarted(gameId_, collectionName)
-    const addrWin_ = "nobody";
-    await MongoDB.updateGameFinished(gameId_, collectionName, addrWin_);
-    var addr1 = await MongoDB.getAddr(gameId_, collectionName, 1);
-    var addr2 = await MongoDB.getAddr(gameId_, collectionName, 2);
+    try {
+      // Удалить её из списка отображаемых
+      await MongoDB.updateGameStarted(gameId_, collectionName)
+      const addrWin_ = "nobody";
+      await MongoDB.updateGameFinished(gameId_, collectionName, addrWin_);
+      var addr1 = await MongoDB.getAddr(gameId_, collectionName, 1);
+      var addr2 = await MongoDB.getAddr(gameId_, collectionName, 2);
 
-    // Формируем JSON для отправки
-    // Для совместимости
-    var generalJSON_ = {};
+      // Получаем данные из БД о адресах контрактов
 
-    var connectionLostJSON = { 
-      whatIsIt: 'opponentLostConnection',
-      generalJSON: generalJSON_ 
-    };
+      // Формируем JSON для отправки
+      // Для совместимости
+      var generalJSON_ = {};
 
-    // Заппрашиваем WS игроков
-    const wsAddr1 = myServer.mapWSClients.get(addr1);
-    const wsAddr2 = myServer.mapWSClients.get(addr2);
+      var connectionLostJSON = { 
+        whatIsIt: 'opponentLostConnection',
+        generalJSON: generalJSON_ 
+      };
 
-    myServer.mapWSClients.delete(addr1);
-    myServer.mapWSClients.delete(addr2);
- 
+      // Запрашиваем WS игроков
+      const wsAddr1 = myServer.mapWSClients.get(addr1);
+      const wsAddr2 = myServer.mapWSClients.get(addr2);
+
+      myServer.mapWSClients.delete(addr1);
+      myServer.mapWSClients.delete(addr2);
+
     try {
       await wsAddr1.send(JSON.stringify(connectionLostJSON));
       await wsAddr1.close();
@@ -111,19 +107,78 @@ wsClient.on('close', async function() {
       await wsAddr2.close();
       console.log('Sending lost connection to addr2 = ', addr2);
     } catch (e) {
-      console.log('Disconnected address #2 (joined user): ', addr2);
-    }
+      console.log('Disconnected address #2 (joined user)', addr2);
+    } 
+
+      // Значит соединение оборвалось во время игры и необходимо вернуть деньги (даже если был только один игрок пока в игре)
+      console.log('Return money to all users in this game ...');
+      // Обработка по одному человеку, вдруг второго еще не было в игре
+      try {
+        var result = await refundTokens(addr1, fullDocumentJSON.addr1_kindTokenOfDeposit, fullDocumentJSON.addr1_amountOfDeposit);
+        if (result) {
+          console.log('addrUser1 has received their tokens');
+        } else {
+          console.log('addrUser1 has not received their tokens');
+        }
+      } catch {
+        console.log('addrUser1 was not in game');
+        // Данного игрока не было в сети в время разрыва соединения (хотя врядли такое будет, т.к. addr1 всегда создает игру)
+      }
+
+      try {
+        var result = await refundTokens(addr2, fullDocumentJSON.addr2_kindTokenOfDeposit, fullDocumentJSON.addr2_amountOfDeposit);
+        if (result) {
+          console.log('addrUser2 has received their tokens');
+        } else {
+          console.log('addrUser2 has not received their tokens');
+        }
+      } catch {
+        console.log('addrUser2 was not in game');
+      }
+
+
     // Запрашиваем адресс соперника и отправляем ему оповещение
     // Для упрошения по gameID запросим оба адреса и через try/catch отправим оповещение (чтобы программа не упала)
+    } catch {
 
-    // Значит соединение оборвалось во время игры и необходимо вернуть деньги (даже если был только один игрок пока в игре)
-    // ...
-    // Записать эти данные в блокчейн !
-    // И чеки возврата тоже, все, все, все
-    console.log('Return money to all users in this game ...');
+    }
+  } else {
+    // А тут игра завершилась, следовательно необходимо определять победителя и переводить выигрыш ему
+    // Определяем победителя
+    
+    var result = await winnerPayout(fullDocumentJSON.addrWinner, fullDocumentJSON.addr1_kindTokenOfDeposit, fullDocumentJSON.addr1_amountOfDeposit, fullDocumentJSON.addr2_kindTokenOfDeposit, fullDocumentJSON.addr2_amountOfDeposit);
+    if (result) {
+      console.log('winnerUser has received tokens');
+    } else {
+      console.log('winnerUser has not received tokens');
+    }
   }
   gamesID.delete(wsClient._socket.remotePort);
   });
+}
+
+async function refundTokens(addrUser, addrContractToken, amountTokens) {
+  var result = await Blockchain.transferWrappedERC20TokensFromCSTtoUsers(addrContractToken, addrUser, amountTokens);
+  if (result) {
+    console.log(`User '${addrUser}' has received tokens back. Exactly.`);
+  } else {
+    console.log(`User '${addrUser}' has not received tokens back. Exactly.`);
+  }
+}
+
+async function winnerPayout(addrWinner, addr1_kindTokenOfDeposit, addr1_amountOfDeposit, addr2_kindTokenOfDeposit, addr2_amountOfDeposit) {
+  var result1 = await Blockchain.transferWrappedERC20TokensFromCSTtoUsers(addr1_kindTokenOfDeposit, addrWinner, addr1_amountOfDeposit);
+  if (result1) {
+    console.log('WinnerUser has received tokens from addr1. Exactly.');
+  } else {
+    console.log('WinnerUser has not received tokens from addr1. Too Exactly.');
+  }
+  var result2 = await Blockchain.transferWrappedERC20TokensFromCSTtoUsers(addr2_kindTokenOfDeposit, addrWinner, addr2_amountOfDeposit);
+  if (result2) {
+    console.log('WinnerUser has received tokens from addr2. Exactly.');
+  } else {
+    console.log('WinnerUser has not received tokens from addr2. Too Exactly.');
+  }
 }
 
 // Это на будущее, вдруг пригодится
