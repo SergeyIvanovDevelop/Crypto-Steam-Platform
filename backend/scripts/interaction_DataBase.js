@@ -39,7 +39,6 @@ async function getListJSON_AllPendingGames() {
 }
 
 async function updateDocumentByIdAttach(documentID, documentJSON, collectionName) {
-
     const pendingGamesCollection = await Server.db.collection(collectionName);
     const filter = { _id: Server.ObjectId(documentID) };
     const updateDoc = {
@@ -177,9 +176,50 @@ async function getAddr(documentID, collectionName, addrNumber) {
         var err = new Error("Wrong addrNumber");
         throw err;
     }
-    
 }
 
+async function isPaidGame(documentID, collectionName) {
+    const pendingGamesCollection = await Server.db.collection(collectionName);
+    const filter = { _id: Server.ObjectId(documentID) };
+    const documentJSON = await pendingGamesCollection.findOne(filter);
+    console.log('documentJSON.paid = ', documentJSON.paid);
+    if (documentJSON.paid == true) {
+        return true;
+    } else {
+        return false;
+    }
+} 
+
+async function updatePaidGame(documentID, collectionName) {
+    const pendingGamesCollection = await Server.db.collection(collectionName);
+    const filter = { _id: Server.ObjectId(documentID) };
+    const updateDoc = {
+        $set: {
+            paid: true,
+        },
+      };
+    const result = await pendingGamesCollection.updateOne(filter, updateDoc);
+    console.log('result = ', result);
+} 
+
+async function checkBlockNumberTransactionInfo(approvedBlockNumberTransactionInfoJSON, collectionName) {
+    const nameCollection = await Server.db.collection(collectionName);
+    const filter = { 
+        blockNumber: approvedBlockNumberTransactionInfoJSON.blockNumber, 
+        contractAddressERC20: approvedBlockNumberTransactionInfoJSON.contractAddressERC20, 
+        addressUser: approvedBlockNumberTransactionInfoJSON.addressUser, 
+        amountTokens: approvedBlockNumberTransactionInfoJSON.amountTokens
+     };
+    const documentJSON = await nameCollection.findOne(filter);
+    console.log("[documentJSON_checkBlockNumberTransactionInfo] = ", documentJSON);
+    if (documentJSON) { // Если документ найден
+        console.log("[Such document has yet been]");
+        return false;
+    } else { // Если такого документа еще не было
+        console.log("[No such document has yet been]");
+        return true;
+    }
+} 
 
 exports.ping = ping;
 exports.closeConnectionWithMongoDB = closeConnectionWithMongoDB;
@@ -194,3 +234,6 @@ exports.performedDigit = performedDigit;
 exports.updateGameFinished = updateGameFinished;
 exports.isGameFinished = isGameFinished;
 exports.getAddr = getAddr;
+exports.updatePaidGame = updatePaidGame;
+exports.isPaidGame = isPaidGame;
+exports.checkBlockNumberTransactionInfo = checkBlockNumberTransactionInfo;
