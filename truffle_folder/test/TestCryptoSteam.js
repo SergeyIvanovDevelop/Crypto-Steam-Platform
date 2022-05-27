@@ -1,11 +1,11 @@
 const CryptoSteam = artifacts.require("CryptoSteam");
-
-const addressSomeSmartContractERC20 = "0xD405831c18D9c4DFB283e3689f3569bc086Fe4E1";
-contract("CryptoSteam test", async accounts => {
+const addressSomeSmartContractERC20 = "0x18B5Cb5ecb4c541Da6333010e67c26c92635deA2";
+contract("CryptoSteam test", async (accounts) => {
     let [owner, userAddress1, userAddress2] = accounts;
+    let contractInstance;
     // Выполнять данную функцию перед каждой функцией-тестом
     beforeEach(async () => {
-        contractInstance = await CryptoSteam.new(owner);
+        contractInstance = await CryptoSteam.new(owner, userAddress1);
     });
 
     it("Owner of contract should be able to mint wrapped ERC20 tokens for any address in CST smart-contract", async () => {
@@ -139,12 +139,14 @@ contract("CryptoSteam test", async accounts => {
     });
 
     it("Owner should be able to start CST smart-contract", async () => {
+        await contractInstance.stopContract({from: owner}); // т.к. startContract можно запустить только лишь если контракт остановлен 
         const result = await contractInstance.startContract({from: owner});
         expect(result.receipt.status).to.equal(true);
     });
-    it("Not owner should not be able to stop CST smart-contract", async () => {
+    it("Not owner should not be able to start CST smart-contract", async () => {
         var result;
         try {
+            await contractInstance.stopContract({from: owner}); // т.к. startContract можно запустить только лишь если контракт остановлен 
             result = await contractInstance.startContract({from: userAddress1});
         } catch {
             result = false;
@@ -176,6 +178,6 @@ contract("CryptoSteam test", async accounts => {
         await instance.setString("My test string");
         let str = await instance.getString.call();
         assert.equal(str, "My test string");
-    });
+    });  
 
 });

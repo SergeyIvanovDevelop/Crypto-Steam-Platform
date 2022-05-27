@@ -2,6 +2,7 @@ pragma solidity >=0.8.0;
 
 import "./cryptostorage.sol";
 import "./ERC20.sol";
+import "./IERC20.sol";
 
 // Наш смарт-контракт одновременно является и ERC20 смарт-контрактом
 contract CryptoSteam is CryptoStorage, ERC20('CryptoSteamToken', 'CST') {
@@ -40,32 +41,31 @@ contract CryptoSteam is CryptoStorage, ERC20('CryptoSteamToken', 'CST') {
     );
 
     event betCreate(
-        uint indexed gameID,
+        string indexed gameID,
         address indexed addressUser,
         address addressContractERC20,
         uint amountTokens
     );
 
     event betJoin(
-        uint indexed gameID,
+        string indexed gameID,
         address indexed addressUser,
         address addressContractERC20,
         uint amountTokens
     );
 
     event betRefundTokens(
-        uint indexed addressUserLostConnection,
+        string indexed addressUserLostConnection,
         address indexed addressUser1,
         address addressContractERC20User1,
         uint amountTokensUser1,
         address indexed addressUser2,
         address addressContractERC20User2,
-        address addressContractERC20,
         uint amountTokensUser2
     );
 
     event betFinish (
-        uint indexed gameID,
+        string indexed gameID,
         address indexed addressWinner,
         address indexed addressLoser
     );
@@ -82,6 +82,15 @@ contract CryptoSteam is CryptoStorage, ERC20('CryptoSteamToken', 'CST') {
         smartContractCSTAddress = address(this);
     }
 
+    function _putOnWrappedERC20TokensInCSTContract(address addressContractERC20, address addressUser, uint amountTokens) private returns (bool) { // Только серверая часть может начислять обернутые токены пользователям
+        require(addressContractERC20 != address(0), "addressContractERC20 must be valid");
+        require(addressUser != address(0), "addressUser must be valid");
+        require(amountTokens > 0, "amountTokens must be > 0");
+        _balancesCST[addressUser][addressContractERC20] = _balancesCST[addressUser][addressContractERC20] + amountTokens; // SafeMath не использую, т.к. версия Solidity >=0.8.0
+        emit mintWERC20(addressContractERC20, addressUser, amountTokens);
+        return true;
+    }
+
     function putOnWrappedERC20TokensInCSTContract(address addressContractERC20, address addressUser, uint amountTokens) public onlyOwner() returns (bool) { // Только серверая часть может начислять обернутые токены пользователям
         require(addressContractERC20 != address(0), "addressContractERC20 must be valid");
         require(addressUser != address(0), "addressUser must be valid");
@@ -91,7 +100,7 @@ contract CryptoSteam is CryptoStorage, ERC20('CryptoSteamToken', 'CST') {
         return true;
     }
 
-    function withdrawWrappedERC20TokensInCSTContract(address addressContractERC20, address addressUser, uint amountTokens) public onlyOwnerUser(addressUser) returns(bool) { // Только пользователь-владелец может списывать обернутые токены со своего счета
+    function withdrawWrappedERC20TokensInCSTContract(address addressContractERC20, address addressUser, uint amountTokens) public onlyOwnerUser(addressUser) whenNotPaused returns(bool) { // Только пользователь-владелец может списывать обернутые токены со своего счета
         require(addressContractERC20 != address(0), "addressContractERC20 must be valid");
         require(addressUser != address(0), "addressUser must be valid");
         require(amountTokens > 0, "amountTokens must be > 0");
@@ -101,7 +110,7 @@ contract CryptoSteam is CryptoStorage, ERC20('CryptoSteamToken', 'CST') {
         return true;
     }
 
-    function transferWrappedERC20TokensToAnotherAddressInCSTContract(address addressContractERC20, address addressSender, address addressReceiver, uint amountTokens) public onlyOwnerUser(addressSender) returns (bool) { // Только пользователь-владелец может списывать обернутые токены со своего счета
+    function transferWrappedERC20TokensToAnotherAddressInCSTContract(address addressContractERC20, address addressSender, address addressReceiver, uint amountTokens) public onlyOwnerUser(addressSender) whenNotPaused returns (bool) { // Только пользователь-владелец может списывать обернутые токены со своего счета
         require(addressContractERC20 != address(0), "addressContractERC20 must be valid");
         require(addressContractERC20 != address(0), "addressContractERC20 must be valid");
         require(addressSender != address(0), "addressSender must be valid");
@@ -126,23 +135,22 @@ contract CryptoSteam is CryptoStorage, ERC20('CryptoSteamToken', 'CST') {
         return true;
     }
 
-    function emitBetCreate(uint gameID, address addressUser, address addressContractERC20, uint amountTokens) public onlyOwner() returns (bool) {
+    function emitBetCreate(string memory gameID, address addressUser, address addressContractERC20, uint amountTokens) public onlyOwner() returns (bool) {
         emit betCreate(gameID, addressUser, addressContractERC20, amountTokens);
         return true;
     }
 
-    function emitBetJoin(uint gameID, address addressUser, address addressContractERC20, uint amountTokens) public onlyOwner() returns (bool) {
+    function emitBetJoin(string memory gameID, address addressUser, address addressContractERC20, uint amountTokens) public onlyOwner() returns (bool) {
         emit betJoin(gameID, addressUser, addressContractERC20, amountTokens);
         return true;
     }
 
-    function emitRefundTokens(uint addressUserLostConnection,
+    function emitRefundTokens(string memory addressUserLostConnection,
                               address addressUser1,
                               address addressContractERC20User1,
                               uint amountTokensUser1,
                               address addressUser2,
                               address addressContractERC20User2,
-                              address addressContractERC20,
                               uint amountTokensUser2) public onlyOwner() returns (bool) {
         emit betRefundTokens( addressUserLostConnection,
                               addressUser1,
@@ -150,24 +158,23 @@ contract CryptoSteam is CryptoStorage, ERC20('CryptoSteamToken', 'CST') {
                               amountTokensUser1,
                               addressUser2,
                               addressContractERC20User2,
-                              addressContractERC20,
                               amountTokensUser2);
         return true;
     }
 
-    function emitBetFinish(uint gameID, address addressWinner, address addressLoser) public onlyOwner() returns (bool) {
+    function emitBetFinish(string memory gameID, address addressWinner, address addressLoser) public onlyOwner() returns (bool) {
         emit betFinish(gameID, addressWinner, addressLoser);
         return true;
     }
 
     function stopContract() public onlyOwner() returns (bool) {
-        // ...
+        pause();
         emit stopContractCST();
         return true;
     }
 
     function startContract() public onlyOwner() returns (bool) {
-        // ...
+        unpause();
         emit startContractCST();
         return true;
     }
@@ -176,6 +183,22 @@ contract CryptoSteam is CryptoStorage, ERC20('CryptoSteamToken', 'CST') {
         require(addressContractERC20 != address(0), "addressContractERC20 must be valid");
         require(addressUser != address(0), "addressUser must be valid");
         return _balancesCST[addressUser][addressContractERC20];
+    }
+
+    function sendERC20TokensCST(address addressContractERC20, uint256 amount) public whenNotPaused returns(bool) {
+        require(addressContractERC20 != address(0), "addressContractERC20 must be valid");
+        require(amount > 0, "amount must be > 0");
+        IERC20 contractERC20 = IERC20(addressContractERC20);
+        require(contractERC20.balanceOf(msg.sender) >= amount, "balanceOf(msg.sender) must be more or equal amount");
+        //require(contractERC20.approve(address(this), amount), "Approve FAILED"); // Нужно, чтобы отдельной транзакцией это делалось (до вызова sendERC20TokensCST)
+        require(contractERC20.allowance(msg.sender, address(this)) >= amount, "allowance(msg.sender, address(this) must be >= amount");
+        require(contractERC20.transferFrom(msg.sender, address(this), amount), "transferFrom FAILED");
+        require(_putOnWrappedERC20TokensInCSTContract(addressContractERC20, msg.sender, amount), "_putOnWrappedERC20TokensInCSTContract FAILED");
+        return true;
+    }
+
+    function getPaused() public view returns(bool) {
+        return paused;
     }
 
 }

@@ -2,8 +2,9 @@ pragma solidity ^0.8.0;
 
 import "./cryptomathadd.sol";
 import "./cryptomathsub.sol";
+import "./Pausable.sol";
 
-contract CryptoStorage is CryptoMathAdd, CryptoMathSub {
+contract CryptoStorage is CryptoMathAdd, CryptoMathSub, Pausable {
 
     string savedString;
     uint savedValue;

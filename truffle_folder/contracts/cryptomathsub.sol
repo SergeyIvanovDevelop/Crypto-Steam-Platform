@@ -1,8 +1,6 @@
 pragma solidity ^0.8.0;
 
-import "./ownable.sol";
-
-contract CryptoMathSub is Ownable {
+contract CryptoMathSub {
 
     event CallSub (
     	uint256 before_,
