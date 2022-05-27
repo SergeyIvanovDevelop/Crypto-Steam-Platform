@@ -12,7 +12,7 @@
     <script language="javascript" type="text/javascript" src="web3.min.js"></script>
   </head>
 
-  <body>
+  <body style="background-color: white; background-image: url('./bg.svg'); background-repeat: no-repeat; background-position: center;">
       <div id="hiddenForm" class="content-blocker" style="display: none; ">
         <div id="gameForm" class="centered">
           <h3 id="statusGame" style="width: auto; text-align: -webkit-center; font-size: 1.25rem;"><strong>Waiting opponent...</strong></h3>
@@ -61,7 +61,7 @@
 
       </div>  
       <div class="generalClass" style="margin-bottom: 10px; padding-left: 10px; padding-top: 10px; ">
-        <div>
+        <div >
           <div id="my_card" class="card" style="margin-top: 20px; margin-right: 20px; width: 90%;">
             <div class="card-body">
               <h4 id="title1" class="card-title" style="padding-bottom: 30px; text-align: center; "><strong>Create Game</strong></h4>
@@ -69,7 +69,7 @@
                 <h3 style="width: auto; text-align: -webkit-center; font-size: 1.25rem;">WALLET ADDRESS:</h3>
                 <input disabled class="form-control" type="text" value="" id="user_eth_address" style="margin-bottom: 10px; color: purple;" >
                 <div style="padding-top: 10px; padding-bottom: 10px;">
-                <input id="connect Wallet" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="CONNECT WALLET" onclick="connectMetaMaskWallet();" id="connectWallet">
+                <input id="connect Wallet" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87; background-image: url(./metamask-fox.svg); background-repeat: no-repeat; background-position: 5px;" type="submit" value="    CONNECT WALLET" onclick="connectMetaMaskWallet();" id="connectWallet">
                 </div>
               </div>
               <div style="align-content: center; padding-left: 10px; padding-top: 10px;">
@@ -138,19 +138,19 @@
                 <h3 id="amount1" style="width: auto; text-align: -webkit-center; font-size: 1.25rem;">AMOUNT:</h3>
                 <input class="form-control" type="text" value="" id="amount_of_token" style="margin-bottom: 10px; color: purple;">
               </div>
-              <div id="checkbox1" style="display: none; align-content: center; padding-left: 5px;">
+              <div id="checkbox1" style="display: none; align-content: center; padding-left: 15px;">
                 <input type="checkbox" id="scales" name="scales" >
                 <label for="scales">Agree to this amount</label>
               </div> 
               <div style="padding-top: 10px; padding-bottom: 10px; padding-left: 10px;">
-                <input disabled id="button1" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="CREATE" onclick="gameCreateJoin();" id="createGameButton">
+                <input disabled id="button1" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="CREATE" onclick="gameCreateJoin2();" id="createGameButton">
               </div>
             </div>
           </div>
           <div id="my_card" class="card" style="margin-top: 20px; margin-right: 20px; width: 90%;">
             <div class="card-body">
               <h4 class="card-title" style="padding-bottom: 20px; text-align: center; "><strong>Balance</strong></h4>
-              <div style="align-content: center; padding-left: 10px;">
+              <div style="align-content: center; padding-left: 0px;">
                 <h3 id="titleToken2" style="width: auto; text-align: -webkit-center; font-size: 1.25rem; padding-top: 10px; ">TOKEN:</h3> 
                 <div id="cryptoList2" class="select_wrap_2">
                   <ul class="default_option_2">
@@ -223,13 +223,63 @@
               </div>
             </div>
           </div>
+          <div style="padding-top: 0px; padding-bottom: 10px; padding-left: 10px; padding-right: 10px; width: 90%;">
+            <input id="showAdminPanel" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87; display: none; width: 100%;" type="submit" value="ADMIN PANEL" onclick="showAdminPanel();">
+          </div>
+          <div id="hiddenForm2" class="content-blocker" style="display: none;">
+            <div id="stopContractForm" class="centered" style="display: none;">
+              <h3 id="statusGame" style="width: auto; text-align: -webkit-center; font-size: 1.25rem;"><strong>SMART-CONTRACT STOPPED BY DEVELOPERS</strong></h3>
+              <div id="gameStarted" style="padding-top: 50px;">
+                <div style="align-content: center; padding-left: 10px;"> 
+                  <h3 style="width: auto; text-align: -webkit-center; font-size: 1.25rem;">We apologize for the inconvenience caused</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="my_card_admin" class="card" style="margin-top: -10px; margin-right: 20px; width: 90%; display: none; ">
+            <div class="card-body">
+              <h4 class="card-title" style="padding-bottom: 20px; text-align: center; "><strong>Admin Panel</strong></h4>
+              <div style="align-content: center; padding-left: 10px;">
+                <label for="adminInfo"><strong>Admin inforamtion:</strong></label>
+                <textarea style="width: 100%;" id="adminInfo" name="adminInfo" rows="5" readonly></textarea> 
+              </div>
+              <div style="padding-top: 15px; padding-bottom: 2px; padding-left: 10px;">
+                <input disable id="buttonStartStopContract" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="" onclick="switchStartStopContract();">
+              </div>
+              <div style="padding-top: 2px; padding-bottom: 10px; padding-left: 10px;">
+                <input disable id="buttonStartStopContract" class="btn btn-primary btn-lg btn-block mb-3" style="background-color: #437881b8; border-color: #757e87;" type="submit" value="CANCEL" onclick="hideAdminPanel();">
+              </div>
+            </div>
+          </div>
         </div>
-        <div style="padding-top: 10px; padding-bottom: 10px; padding-left: 10px; width: 50%;" >
+        <div style="padding-top: 10px; padding-bottom: 10px; padding-left: 10px; width: 70%; align-items: center;">
           <h1 id="logo-text-2" class="text-center" style="font-family: Font1; padding-bottom: 30px; font-size: 70px; color: red; margin-right: 20px;">Crypto STEAM</h1>   
           <p class="text-center" style="font-family: Font2; font-size: 30px; color: cadetblue;">LIST OF PENDING GAMES</p>
           <div id="listGames"></div>
+             <div id="divLogo"><img id="eth_logo" style="width: 240px; height: 180px; align-self: center;" src="./eth.png"></div>
+        </div>
+        <div id="spinnerBlocker" class="content-blocker2" style="display: none;"></div>
+        <div id="waitingRecieveTokensSpinner" class="centeredSpinner" style="display: none;">
+          <div class="spinner-border text-info" role="status">        
+          </div>
+          <span style="padding-right: 15px; padding-top: 5px;" class="visually-hidden"> <strong>Waiting tokens...</strong>  </span>
+        </div>
+        <div id="images" style="padding-top: 100px; width: 10%; position: absolute; right: 0px; display: none;"  >
+          <div>
+            <img class="static" id="img1" style="width: 80px; height: 100px; padding-left: 0px;" src="./img1.jpeg"><img class="active" src="./img1.gif" id="img1" style="width: 80px; height: 100px; padding-left: 0px;">
+          </div>
+          <div>
+            <img class="static" id="img2" style="width: 170px; height: 150px; padding-left: 0px;" src="./img2.png"><img class="active" src="./img2.gif" id="img2" style="width: 170px; height: 150px; padding-left: 0px;">
+          </div>
+          <div>
+            <img class="static" id="img3" style="width: 130px; height: 130px;" src="./img3.png"><img class="active" src="./img3.gif" id="img3" style="width: 130px; height: 130px;">
+          </div>
+          <div>
+            <img class="static" id="img4" style="width: 135px; height: 115px;" src="./img4.png"><img class="active" src="./img4.gif" id="img4" style="width: 135px; height: 115px;">
+          </div>
         </div>
       </div>
+
     <script src="CryptoSteamABI_client.js"></script> 
     <script src="web3_part_client.js"></script>   
     <script src="client_ws.js"></script>

@@ -99,6 +99,12 @@ var cryptoSteamContractABI = [
   },
   {
     "anonymous": false,
+    "inputs": [],
+    "name": "Pause",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
         "indexed": false,
@@ -137,12 +143,18 @@ var cryptoSteamContractABI = [
   },
   {
     "anonymous": false,
+    "inputs": [],
+    "name": "Unpause",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "gameID",
-        "type": "uint256"
+        "type": "string"
       },
       {
         "indexed": true,
@@ -171,9 +183,9 @@ var cryptoSteamContractABI = [
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "gameID",
-        "type": "uint256"
+        "type": "string"
       },
       {
         "indexed": true,
@@ -196,9 +208,9 @@ var cryptoSteamContractABI = [
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "gameID",
-        "type": "uint256"
+        "type": "string"
       },
       {
         "indexed": true,
@@ -227,9 +239,9 @@ var cryptoSteamContractABI = [
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "addressUserLostConnection",
-        "type": "uint256"
+        "type": "string"
       },
       {
         "indexed": true,
@@ -259,12 +271,6 @@ var cryptoSteamContractABI = [
         "indexed": false,
         "internalType": "address",
         "name": "addressContractERC20User2",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "addressContractERC20",
         "type": "address"
       },
       {
@@ -631,6 +637,27 @@ var cryptoSteamContractABI = [
     "constant": true
   },
   {
+    "inputs": [],
+    "name": "pause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "paused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
+  },
+  {
     "inputs": [
       {
         "internalType": "string",
@@ -748,6 +775,13 @@ var cryptoSteamContractABI = [
         "type": "bool"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unpause",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -875,9 +909,9 @@ var cryptoSteamContractABI = [
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "gameID",
-        "type": "uint256"
+        "type": "string"
       },
       {
         "internalType": "address",
@@ -909,9 +943,9 @@ var cryptoSteamContractABI = [
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "gameID",
-        "type": "uint256"
+        "type": "string"
       },
       {
         "internalType": "address",
@@ -943,9 +977,9 @@ var cryptoSteamContractABI = [
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "addressUserLostConnection",
-        "type": "uint256"
+        "type": "string"
       },
       {
         "internalType": "address",
@@ -973,11 +1007,6 @@ var cryptoSteamContractABI = [
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "addressContractERC20",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
         "name": "amountTokensUser2",
         "type": "uint256"
@@ -997,9 +1026,9 @@ var cryptoSteamContractABI = [
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "gameID",
-        "type": "uint256"
+        "type": "string"
       },
       {
         "internalType": "address",
@@ -1068,6 +1097,44 @@ var cryptoSteamContractABI = [
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addressContractERC20",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "sendERC20TokensCST",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPaused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",

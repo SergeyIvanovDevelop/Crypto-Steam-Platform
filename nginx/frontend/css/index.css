@@ -6,6 +6,14 @@
   margin-bottom: 20px;
 }
 
+#my_card {
+  background: rgba(255,255,255,.3);
+}
+
+#my_card_admin {
+  background: rgba(255,255,255,.3);
+}
+
 body {
   background-size:100%;
   background-repeat: repeat-y;
@@ -13,6 +21,21 @@ body {
   height:100%;
   width:100%;
 }
+
+/*
+body::before {    
+      content: "";
+      background-image: url('./eth.png');
+      background-size: 240px 180px;
+      background-repeat: no-repeat;
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      bottom: 0px;
+      left: 0px;
+      opacity: 0.75;
+}
+*/
 
 header {
   display: flex;
@@ -77,6 +100,8 @@ header {
   border-radius: 2em;
   transition: all .3s ease-out;
 }
+.rounded a:focus {background: #8ab891;} 
+.rounded a:focus::before {background: #8ab891;} 
 
 .generalClass {
   display: flex;
@@ -334,6 +359,17 @@ header {
   z-index: 4444;
 }
 
+.content-blocker2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5);
+  z-index: 4444;
+}
+
+
 .centered {
     position: fixed; /* or absolute */
     top: 50%;
@@ -345,6 +381,47 @@ header {
     color: #fff; /* Цвет текста */
     padding: 10px; /* Поля вокруг текста */
     border-radius: 15px; /* Углы */
+}
+
+.centeredSpinner {
+    position: fixed; /* or absolute */
+    top: 50%;
+    left: 50%;
+}
+
+.static {
+  position:absolute;
+  background: white;
+}
+
+.static:hover {
+  opacity:0;
+}
+
+#images {
+  display: flex; 
+  flex-direction: row-reverse; 
+  align-items: center; 
+  justify-content: space-around;
+  flex-direction: column;
+  height: 100%;
+}
+
+#divLogo {
+  width: 100%;
+  display: flex;
+  align-content: flex-end;
+  justify-content: space-around;
+  opacity: 0.5;
+}
+
+#waitingRecieveTokensSpinner {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: nowrap;
+  align-content: stretch;
+  justify-content: space-evenly;
+  align-items: stretch;
 }
 
 @font-face { font-family: Font1; src: url('font1.ttf'); }

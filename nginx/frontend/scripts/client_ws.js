@@ -8,30 +8,35 @@ var addressChosenGameToken;
 var myWs;
 var myWsGame;
 
+const SERVER_IP_ADDRESS = "127.0.0.1";
+const SERVER_PORT = "8080";
+const SERVER_PORT_WS_ENTER = "9000";
+const SERVER_PORT_WS_CREATE_JOIN = "9001";
+
 const addressContractWBTCRinkeby = "0x577D296678535e4903D59A4C929B718e1D575e0A";
 const addressContractWETHRinkeby = "0xDf032Bc4B9dC2782Bb09352007D4C57B75160B15";
 const addressContractUSDTRinkeby = "0x425c7E0DcFf90D9d61b1915363691a1B890831fC";
 const addressContractUNIRinkeby = "0x658AF3a184c8Ccd153eb2ad58912A02C4f2c8E38";
 
 async function main() {
-  myWs = new WebSocket('ws://localhost:9000');
+  myWs = new WebSocket(`ws://${SERVER_IP_ADDRESS}:${SERVER_PORT_WS_ENTER}`);
   // Обработчик проинформирует в консоль когда соединение установится
   myWs.onopen = function () {
-    console.log('Connected to WebSockets (9000)');
+    console.log(`Connected to WebSockets (${SERVER_PORT_WS_ENTER})`);
   };
   // Обработчик сообщений от сервера
-  myWs.onmessage = function (message) {
+  myWs.onmessage = async function (message) {
     const Document = JSON.parse(message.data);
     console.log('Document: ', Document);
     const amount = Document.amount;
     const arrayDocument = Document.genearlJSON;
-    const listGames = createListGames(Document);
+    const listGames = await createListGames(Document);
     $("#listGames").empty();
     $('#listGames').append(listGames);
   };
 } 
 
-function createListGames(documentJSON) {
+async function createListGames(documentJSON) {
   const amount = documentJSON.amount;
   const arrayDocument = documentJSON.generalJSON;
   var IDsGamesFrontend = [];
@@ -52,11 +57,11 @@ function createListGames(documentJSON) {
                     <ul id="dynamicListGames" class='rounded' >`
   // Формируем список
   for ( i = 0; i < amount; i++ ) {
-    // Формируем сложную строку
+    /// Формируем сложную строку
     // Запросы SYMBOL токенов
-    // const tokenSymbol_ = getContractSymbolToken(kindsToken[i]);
+    const tokenSymbol_ = await getContractSymbolToken(kindsToken[i]);
 
-    str += `<li id="${kindsToken[i]}"><a href="#"><strong>GameID: </strong><i>${IDsGamedMongoDB[i]}</i> | <mark>${amountsToken[i]}</mark> (<b>${kindsToken[i]}</b>)</a></li>`;
+    str += `<li id="${kindsToken[i]}"><a href="#"><strong>GameID: </strong><i>${IDsGamedMongoDB[i]}</i> | <mark> ${amountsToken[i]} [${tokenSymbol_}] </mark> (<b>${kindsToken[i]}</b>)</a></li>`;
   }
 
   str += `</ul>
@@ -72,7 +77,11 @@ function isDigit(value) {
   }
 }
 
-async function gameCreateJoin() {
+// Второй вариант оборачивания токенов в ERC20 в смарт-контракте CST 
+/// (комбинированный: исключительно через смарт-контракты - "CREATE", через оракула, слушающего события - "JOIN")
+/// *********************************************************************************
+
+async function gameCreateJoin2() {
   var userEthAddr = document.getElementById('user_eth_address');
   if (userEthAddr.value.length !== 42) {
     // Отключим на время тестов
@@ -92,19 +101,16 @@ async function gameCreateJoin() {
     return;
   }
 
-
-
-  myWsGame = new WebSocket('ws://localhost:9001');
+  myWsGame = new WebSocket(`ws://${SERVER_IP_ADDRESS}:${SERVER_PORT_WS_CREATE_JOIN}`);
 
   // Обработчик проинформирует в консоль когда соединение установится
   myWsGame.onopen = async function () {
-    console.log('Connected to WebSockets (9001)');
+    console.log(`Connected to WebSockets (${SERVER_PORT_WS_CREATE_JOIN})`);
 
     // Находим необходимые данные на веб-странице
     var userEthAddr = document.getElementById('user_eth_address');
     const userEthAddr_ = userEthAddr.value;
     console.log('userEthAddr_ = ', userEthAddr_);
-
 
     var tokenSymbol_ = document.getElementById('contractTokenAddressCreateJoin');
     const kindToken_ = tokenSymbol_.value;
@@ -122,8 +128,6 @@ async function gameCreateJoin() {
 
 
   // --------------------------------- Проверки создания игры --------------------------------------
-
-
       var flagGame = false;
       // Проверки со счетоми
       var amountTokens = document.getElementById('amount_of_token');
@@ -134,74 +138,79 @@ async function gameCreateJoin() {
       const currentBalance = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
 
       // Проверяем, хватает ли выбранных токенов на внутреннем счету
-      if (currentBalance < amountTokens.value) {
+      if (currentBalance < parseInt(amountTokens.value)) {
+
+         // Для отладки
+        console.log(' !!! [currentBalance < amountTokens.value] !!!');
+
         // Если нет, проверяем есть ли у него выбранные токены на его MetaMask кошельке
         var contractERC20_ = document.getElementById('contractTokenAddressCreateJoin');
         const contractERC20 = new web3.eth.Contract(cryptoSteamContractABI, contractERC20_.value);
         var userAddress = document.getElementById('user_eth_address');
-        var balanceContractERC20 = await contractERC20.methods.balanceOf(userAddress.value).call();
+        var balanceContractERC20;
+        try {
+          balanceContractERC20 = await contractERC20.methods.balanceOf(userAddress.value).call();
+        } catch {
+          console.log('Smart-contract access error');
+          alert('Smart-contract access error');
+        }
         console.log('balanceContractERC20 = ', balanceContractERC20);
 
         // Сколько не хватает
-        var deficiency = amountTokens.value - currentBalance;
+        var deficiency = parseInt(amountTokens.value) - currentBalance;
         if (balanceContractERC20 >= deficiency) {
+
+          // Для отладки
+          console.log(' !!! [balanceContractERC20 >= deficiency] !!!');
+
           // Если с учетом средств на кошельке токенов достаточно, то
           // Запрос на перевод ERC20 токенов пользователя на счет смартконтракта CST
           let conf = confirm('There are not enough picked tokens on your CST account. Transfer missing amount from MetaMask wallet?');
           if (!conf) {
             return;
           }
-      
-            var result = await sendERC20Tokens(addressContractERC20.value, userEthAddr.value, addressContractERC20.value, deficiency);
-            console.log('result = ', result);
+
+            console.log('[deficiency] = ', deficiency);
+
+            // Вот тут вызов ОДНОЙ функции НАШЕГО СМАРТ-КОНТРАКТА (а вот уже из нее будет вызываться функция смарт-контракта ERC20)
+            var result = await sendERC20TokensCST(addressContractERC20.value, userEthAddr.value, deficiency);
+            console.log('result_sendERC20TokensCST = ', result);
             if (!result) {alert('Error transaction'); return;}
-            var serverConfirm = false;
-            // отправляем запрос на сервер, ждем подтверждения
-            var data_ = { "receipt" : result , 'contractAddress' : addressContractERC20.value,'addressUser' : userEthAddr.value, 'amount' : deficiency};
-            $.ajax({
-              contentType: 'application/json',
-              url: `http://127.0.0.1:8080/approveTransaction/`,
-              method: 'post',             
-              dataType: 'json',         
-              data: JSON.stringify(data_),     
-              processData: false,
-              success: async function(data){            
-                serverConfirm = data.confirm;
-              },
-              async: false
-            });
-            if (!serverConfirm) {
-              alert('The server did not confirm the crediting of tokens');
+
+            // Если сервер подтвердил (а значит уже и зачислил обернутые токены в смарт-контракте CST)
+            // Перепроверяем внутренний баланс
+            for (;;) {
+              var currentBalance_2 = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
+              if (currentBalance_2 >= parseInt(amountTokens.value)) {
+                console.log('Tokens successfully credited');
+                alert('Tokens successfully credited');
+                break;
+              }
+            }
+
+            resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
+            console.log('resultTransfer = ', resultTransfer);
+            if (resultTransfer != true) {
+              alert('Transfering failed');
               return;
             } else {
-              // Если сервер подтвердил (а значит уже и зачислил обернутые токены в смарт-контракте CST)
-              // Перепроверяем внутренний баланс
-              for (;;) {
-                var currentBalance_2 = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
-                if (currentBalance_2 >= amountTokens.value) {
-                  console.log('Tokens successfully credited')
-                  break;
-                }
-              }
-              resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, addressContractERC20.value, amountTokens.value);
-              console.log('resultTransfer = ', resultTransfer);
-              if (resultTransfer != true) {
-                alert('Transfering failed');
-                return;
-              } else {
-                // Если ошибок нет - создается игра (ставим флаг создать игру)
-                flagGame = true;
-              } 
-            }
-            } else {
+              // Если ошибок нет - создается игра (ставим флаг создать игру)
+              flagGame = true;
+            } 
+            
+          } else {
           // Даже с учетом токенов на MetaMask кошельке средств не хватает
           alert('There are not enough picked tokens on your CST account && MetaMask wallet.');
           return;
         }
       } else {
+
+      // Для отладки
+      console.log(' !!! enoght Tokens in account CST !!!');
+
       // Выбранных токенов достаточно чтобы создать игру
       // Перечисляем обернутые токены на счет смарт-контракта CST (в контракте CST)
-      var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, addressContractERC20.value, amountTokens.value);
+      var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
       console.log('resultTransfer = ', resultTransfer);
       if (resultTransfer != true) {
         alert('Transfering failed');
@@ -229,8 +238,6 @@ async function gameCreateJoin() {
     }
 
 // --------------------------------- Проверки создания игры --------------------------------------
-
-
         console.log('Creating new game...');
         var generalJSON_ = {
           addr1: userEthAddr_,
@@ -241,7 +248,7 @@ async function gameCreateJoin() {
           addr2_performed: -1,
           gameStarted: false,
           gameFinished: false,
-          repaid: false
+          paid: false
         };
 
         var createGameJSON = {
@@ -255,108 +262,122 @@ async function gameCreateJoin() {
         var hiddenForm = document.getElementById('hiddenForm');
         hiddenForm.style.display = 'block';
       }
-    }
+    
 
-      if (mode == 'attach') {
-
-
-
-
-// Тут все остается точно также, только перед этим необходимо проверить
+    if (mode == 'attach') {
 
 // --------------------------------- Проверки присоединения к игре --------------------------------------
+      var flagGame = false;
+      // Проверки со счетоми
+      var amountTokens = document.getElementById('amount_of_token');
 
+      /// Запрашиваем баланс у смарт-контракта CST
+      var userEthAddr = document.getElementById('user_eth_address');
+      var addressContractERC20 = document.getElementById('contractTokenAddressCreateJoin');
+      const currentBalance = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
 
-    var flagGame = false;
-    // Проверки со счетоми
-    var amountTokens = document.getElementById('amount_of_token');
+      console.log('currentBalance = ', currentBalance);
+      console.log('amountTokens.value = ', parseInt(amountTokens.value));
+      // Проверяем, хватает ли выбранных токенов на внутреннем счету
+      if (currentBalance < parseInt(amountTokens.value)) {
 
-    /// Запрашиваем баланс у смарт-контракта CST
-    var userEthAddr = document.getElementById('user_eth_address');
-    var addressContractERC20 = document.getElementById('contractTokenAddressCreateJoin');
-    const currentBalance = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
+        // Для отладки
+        console.log(' !!! [currentBalance < amountTokens.value] !!!');
 
-    // Проверяем, хватает ли выбранных токенов на внутреннем счету
-    if (currentBalance < amountTokens.value) {
-      // Если нет, проверяем есть ли у него выбранные токены на его MetaMask кошельке
-      var contractERC20_ = document.getElementById('contractTokenAddressCreateJoin');
-      const contractERC20 = new web3.eth.Contract(cryptoSteamContractABI, contractERC20_.value);
-      var userAddress = document.getElementById('user_eth_address');
-      var balanceContractERC20 = await contractERC20.methods.balanceOf(userAddress.value).call();
-      console.log('balanceContractERC20 = ', balanceContractERC20);
+        // Если нет, проверяем есть ли у него выбранные токены на его MetaMask кошельке
+        var contractERC20_ = document.getElementById('contractTokenAddressCreateJoin');
+        const contractERC20 = new web3.eth.Contract(cryptoSteamContractABI, contractERC20_.value);
+        var userAddress = document.getElementById('user_eth_address');
+        var balanceContractERC20 = await contractERC20.methods.balanceOf(userAddress.value).call();
+        console.log('balanceContractERC20 = ', balanceContractERC20);
 
-      // Сколько не хватает
-      var deficiency = amountTokens.value - currentBalance;
-      if (balanceContractERC20 >= deficiency) {
-        // Если с учетом средств на кошельке токенов достаточно, то
-        // Запрос на перевод ERC20 токенов пользователя на счет смартконтракта CST
-        let conf = confirm('There are not enough picked tokens on your CST account. Transfer missing amount from MetaMask wallet?');
-        if (!conf) {
+        // Сколько не хватает
+        var deficiency = parseInt(amountTokens.value) - currentBalance;
+        if (balanceContractERC20 >= deficiency) {
+
+        // Для отладки
+        console.log(' !!! [balanceContractERC20 >= deficiency] !!!');
+
+          // Если с учетом средств на кошельке токенов достаточно, то
+          // Запрос на перевод ERC20 токенов пользователя на счет смартконтракта CST
+          let conf = confirm('There are not enough picked tokens on your CST account. Transfer missing amount from MetaMask wallet?');
+          if (!conf) {
+            return;
+          }
+          // Это тоже самое, что и поолнить счет
+          // Перевод пользователем токенов ERC20 на счет смарт-контракта CST
+
+            console.log('[deficiency] = ', deficiency);
+
+            var result = await sendERC20Tokens(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, deficiency);
+            console.log('result_sendERC20Tokens = ', result.status);
+            console.log('result_sendERC20Tokens_EVENTS = ', result.events);
+              if (!result.status) {alert('Error transaction'); return;}
+            var serverConfirm = false;
+            // отправляем запрос на сервер, ждем подтверждения
+            var data_ = { "receipt" : result , 'contractAddress' : addressContractERC20.value, 'addressUser' : userEthAddr.value, 'amount' : deficiency};
+            $.ajax({
+              contentType: 'application/json',
+              url: `http://${SERVER_IP_ADDRESS}:${SERVER_PORT}/approveTransaction/`,
+              method: 'post',             
+              dataType: 'json',         
+              data: JSON.stringify(data_),     
+              processData: false,
+              success: async function(data){            
+                serverConfirm = data.confirm;
+              },
+              async: false
+            });
+            if (!serverConfirm) {
+              alert('The server did not confirm the crediting of tokens');
+              return;
+            } else {
+              // Если сервер подтвердил (а значит уже и зачислил обернутые токены в смарт-контракте CST)
+              // Перепроверяем внутренний баланс
+              document.getElementById("waitingRecieveTokensSpinner").style.display = "flex";
+              document.getElementById("spinnerBlocker").style.display = "block";
+              for (;;) {
+                var currentBalance_2 = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
+                if (currentBalance_2 >= parseInt(amountTokens.value)) {
+                  console.log('Tokens successfully credited')
+                  break;
+                }
+              }
+              document.getElementById("waitingRecieveTokensSpinner").style.display = "none"; 
+              document.getElementById("spinnerBlocker").style.display = "none";
+                console.log('Transfering to WERC20 in CST');
+                // Если токены пришли, то перечисляем их на счет смарт-контракта CST (в контракте CST)
+                var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
+                console.log('resultTransfer = ', resultTransfer);
+                if (resultTransfer != true) {
+                  alert('Transfering failed');
+                  return;
+                } else {
+                  // Если ошибок нет - создается игра (ставим флаг создать игру)
+                  flagGame = true;
+                }
+            }
+        } else {
+          // Даже с учетом токенов на MetaMask кошельке средств не хватает
+          alert('There are not enough picked tokens on your CST account && MetaMask wallet.');
           return;
         }
-        // Это тоже самое, что и поолнить счет
-        // Перевод пользователем токенов ERC20 на счет смарт-контракта CST
-          var result = await sendERC20Tokens(addressContractERC20.value, userEthAddr.value, addressContractERC20.value, deficiency);
-          console.log('result = ', result);
-          if (!result) {alert('Error transaction'); return;}
-          var serverConfirm = false;
-          // отправляем запрос на сервер, ждем подтверждения
-          var data_ = { "receipt" : result , 'contractAddress' : addressContractERC20.value,'addressUser' : userEthAddr.value, 'amount' : deficiency};
-           $.ajax({
-             contentType: 'application/json',
-             url: `http://127.0.0.1:8080/approveTransaction/`,
-             method: 'post',             
-             dataType: 'json',         
-             data: JSON.stringify(data_),     
-             processData: false,
-             success: async function(data){            
-               serverConfirm = data.confirm;
-             },
-             async: false
-           });
-          if (!serverConfirm) {
-            alert('The server did not confirm the crediting of tokens');
-            return;
-          } else {
-            // Если сервер подтвердил (а значит уже и зачислил обернутые токены в смарт-контракте CST)
-            // Перепроверяем внутренний баланс
-            for (;;) {
-              var currentBalance_2 = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
-              if (currentBalance_2 >= amountTokens.value) {
-                console.log('Tokens successfully credited')
-                break;
-              }
-            }
-              console.log('Transfering to WERC20 in CST');
-              // Если токены пришли, то перечисляем их на счет смарт-контракта CST (в контракте CST)
-              var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, addressContractERC20.value, amountTokens.value);
-              console.log('resultTransfer = ', resultTransfer);
-              if (resultTransfer != true) {
-                alert('Transfering failed');
-                return;
-              } else {
-                // Если ошибок нет - создается игра (ставим флаг создать игру)
-                flagGame = true;
-              }
-          }
       } else {
-        // Даже с учетом токенов на MetaMask кошельке средств не хватает
-        alert('There are not enough picked tokens on your CST account && MetaMask wallet.');
-        return;
-      }
-    } else {
-      // Выбранных токенов достаточно чтобы создать игру
-      // Перечисляем обернутые токены на счет смарт-контракта CST (в контракте CST)
-      var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, addressContractERC20.value, amountTokens.value);
-      console.log('resultTransfer = ', resultTransfer);
-      if (resultTransfer != true) {
-        alert('Transfering failed');
-        return;
-      } else {
-        // Если ошибок нет - создается игра (ставим флаг создать игру)
-        flagGame = true;
-      }
-      
+
+        // Для отладки
+        console.log(' !!! enoght Tokens in account CST !!!');
+
+        // Выбранных токенов достаточно чтобы создать игру
+        // Перечисляем обернутые токены на счет смарт-контракта CST (в контракте CST)
+        var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
+        console.log('resultTransfer = ', resultTransfer);
+        if (resultTransfer != true) {
+          alert('Transfering failed');
+          return;
+        } else {
+          // Если ошибок нет - создается игра (ставим флаг создать игру)
+          flagGame = true;
+        }
     }
 
     // Обновляем баланс на экране
@@ -371,57 +392,52 @@ async function gameCreateJoin() {
     }
     console.log('currentBalance_ = ', currentBalance_);
 
-
-
     if (!flagGame) {
       alert("You can't join game");
       return;
     }
 
 // --------------------------------- Проверка присоединения к игре --------------------------------------
-
-
-
         // Находим необходимые данные на веб-странице
-        var userEthAddr = document.getElementById('user_eth_address');
-        const userEthAddr_ = userEthAddr.value;
-        console.log('userEthAddr_ = ', userEthAddr_);
+    var userEthAddr = document.getElementById('user_eth_address');
+    const userEthAddr_ = userEthAddr.value;
+    console.log('userEthAddr_ = ', userEthAddr_);
 
 
-        var tokenSymbol_ = document.getElementById('contractTokenAddressCreateJoin');
-        const kindToken_ = tokenSymbol_.value;
-        console.log('kindToken_ = ', kindToken_);
+    var tokenSymbol_ = document.getElementById('contractTokenAddressCreateJoin');
+    const kindToken_ = tokenSymbol_.value;
+    console.log('kindToken_ = ', kindToken_);
 
-        var amountToken = document.getElementById('amount_of_token');
-        const amountToken_ = amountToken.value;
-        console.log('amountToken_ = ', amountToken_);
+    var amountToken = document.getElementById('amount_of_token');
+    const amountToken_ = amountToken.value;
+    console.log('amountToken_ = ', amountToken_);
 
-        const currentDate = new Date();
-        const timestamp = currentDate.getTime(); // It is the number of milliseconds that have passed since January 1, 1970.
+    const currentDate = new Date();
+    const timestamp = currentDate.getTime(); // It is the number of milliseconds that have passed since January 1, 1970.
 
 
-        console.log('Joining to the game...');
+    console.log('Joining to the game...');
 
-        console.log('check_gameID = ', gameID);
-        var generalJSON_ = {
-          gameID: gameID,
-          addr2: userEthAddr_,
-          addr2_kindTokenOfDeposit: kindToken_,
-          addr2_amountOfDeposit: amountToken_,
-          addr2_timeOfLockingDeposit: timestamp
-        };
+    console.log('check_gameID = ', gameID);
+    var generalJSON_ = {
+      gameID: gameID,
+      addr2: userEthAddr_,
+      addr2_kindTokenOfDeposit: kindToken_,
+      addr2_amountOfDeposit: amountToken_,
+      addr2_timeOfLockingDeposit: timestamp
+    };
 
-        var attachGameJSON = {
-          whatIsIt: 'attach',
-          generalJSON: generalJSON_
-        };
+    var attachGameJSON = {
+      whatIsIt: 'attach',
+      generalJSON: generalJSON_
+    };
 
-        await myWsGame.send(JSON.stringify(attachGameJSON));
-        var hiddenForm = document.getElementById('hiddenForm');
-        hiddenForm.style.display = 'block';
+    await myWsGame.send(JSON.stringify(attachGameJSON));
+    var hiddenForm = document.getElementById('hiddenForm');
+    hiddenForm.style.display = 'block';
       
-   };
-    
+   }
+  };
     // Обработчик сообщений от сервера
     myWsGame.onmessage = function (message) {
       const Document = JSON.parse(message.data);
@@ -462,7 +478,12 @@ async function gameCreateJoin() {
           break;
         case 'opponentLostConnection':
           alert('Your opponent lost connection. Returning all rates.');
-          hideGameForms();
+          // Чтобы пользователь успел увидеть сообщение-alert
+          setTimeout(function() { 
+            console.log('Your opponent lost connection. Returning all rates.');
+            hideGameForms();
+          }, 10000);
+          
           break;
         default:
           console.log('Unknow command');
@@ -470,6 +491,428 @@ async function gameCreateJoin() {
       }
     };
 }
+
+// *********************************************************************************
+
+// Первый вариант оборачивания токенов в ERC20 в смарт-контракте CST 
+/// (исключительно через оракула, слушающего события - и "CREATE" и "JOIN")
+/// [оставил исключительно для сравнения]
+/// *********************************************************************************
+async function gameCreateJoin() {
+  var userEthAddr = document.getElementById('user_eth_address');
+  if (userEthAddr.value.length !== 42) {
+    // Отключим на время тестов
+    //alert("Field 'WALLET ADDRESS' has wrong format!");
+    //return;
+  }
+
+  var amountToken = document.getElementById('amount_of_token');
+  if (amountToken.value == "") {
+    alert("Field 'AMOUNT' can't be empty");
+    return;
+  }
+
+  if (!isDigit(amountToken.value))
+  {
+    alert("Value field 'AMOUNT' must be a number");
+    return;
+  }
+
+  myWsGame = new WebSocket(`ws://${SERVER_IP_ADDRESS}:${SERVER_PORT_WS_CREATE_JOIN}`);
+
+  // Обработчик проинформирует в консоль когда соединение установится
+  myWsGame.onopen = async function () {
+    console.log(`Connected to WebSockets (${SERVER_PORT_WS_CREATE_JOIN})`);
+
+    // Находим необходимые данные на веб-странице
+    var userEthAddr = document.getElementById('user_eth_address');
+    const userEthAddr_ = userEthAddr.value;
+    console.log('userEthAddr_ = ', userEthAddr_);
+
+
+    var tokenSymbol_ = document.getElementById('contractTokenAddressCreateJoin');
+    const kindToken_ = tokenSymbol_.value;
+    console.log('kindToken_ = ', kindToken_);
+
+    var amountToken = document.getElementById('amount_of_token');
+    const amountToken_ = amountToken.value;
+    console.log('amountToken_ = ', amountToken_);
+
+    const currentDate = new Date();
+    const timestamp = currentDate.getTime(); // It is the number of milliseconds that have passed since January 1, 1970.
+
+      // Формируем JSON для отправки на сервер для создания ожидающей игры
+    if (mode == 'create') {
+
+  // --------------------------------- Проверки создания игры --------------------------------------
+      var flagGame = false;
+      // Проверки со счетоми
+      var amountTokens = document.getElementById('amount_of_token');
+
+      /// Запрашиваем баланс у смарт-контракта CST
+      var userEthAddr = document.getElementById('user_eth_address');
+      var addressContractERC20 = document.getElementById('contractTokenAddressCreateJoin');
+      const currentBalance = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
+
+      // Проверяем, хватает ли выбранных токенов на внутреннем счету
+      if (currentBalance < parseInt(amountTokens.value)) {
+
+         // Для отладки
+        console.log(' !!! [currentBalance < amountTokens.value] !!!');
+
+        // Если нет, проверяем есть ли у него выбранные токены на его MetaMask кошельке
+        var contractERC20_ = document.getElementById('contractTokenAddressCreateJoin');
+        const contractERC20 = new web3.eth.Contract(cryptoSteamContractABI, contractERC20_.value);
+        var userAddress = document.getElementById('user_eth_address');
+        var balanceContractERC20 = await contractERC20.methods.balanceOf(userAddress.value).call();
+        console.log('balanceContractERC20 = ', balanceContractERC20);
+
+        // Сколько не хватает
+        var deficiency = parseInt(amountTokens.value) - currentBalance;
+        if (balanceContractERC20 >= deficiency) {
+
+          // Для отладки
+          console.log(' !!! [balanceContractERC20 >= deficiency] !!!');
+
+          // Если с учетом средств на кошельке токенов достаточно, то
+          // Запрос на перевод ERC20 токенов пользователя на счет смартконтракта CST
+          let conf = confirm('There are not enough picked tokens on your CST account. Transfer missing amount from MetaMask wallet?');
+          if (!conf) {
+            return;
+          }
+
+            console.log('[deficiency] = ', deficiency);
+
+            var result = await sendERC20Tokens(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, deficiency);
+            console.log('result_sendERC20Tokens = ', result.status);
+            console.log('result_sendERC20Tokens_EVENTS = ', result.events);
+            if (!result.status) {alert('Error transaction'); return;}
+            var serverConfirm = false;
+            // отправляем запрос на сервер, ждем подтверждения
+            var data_ = { "receipt" : result , 'contractAddress' : addressContractERC20.value, 'addressUser' : userEthAddr.value, 'amount' : deficiency};
+            $.ajax({
+              contentType: 'application/json',
+              url: `http://${SERVER_IP_ADDRESS}:${SERVER_PORT}/approveTransaction/`,
+              method: 'post',             
+              dataType: 'json',         
+              data: JSON.stringify(data_),     
+              processData: false,
+              success: async function(data){            
+                serverConfirm = data.confirm;
+              },
+              async: false
+            });
+            if (!serverConfirm) {
+              alert('The server did not confirm the crediting of tokens');
+              return;
+            } else {
+              // Если сервер подтвердил (а значит уже и зачислил обернутые токены в смарт-контракте CST)
+              // Перепроверяем внутренний баланс
+              for (;;) {
+                var currentBalance_2 = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
+                if (currentBalance_2 >= parseInt(amountTokens.value)) {
+                  console.log('Tokens successfully credited')
+                  break;
+                }
+              }
+              resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
+              console.log('resultTransfer = ', resultTransfer);
+              if (resultTransfer != true) {
+                alert('Transfering failed');
+                return;
+              } else {
+                // Если ошибок нет - создается игра (ставим флаг создать игру)
+                flagGame = true;
+              } 
+            }
+            } else {
+          // Даже с учетом токенов на MetaMask кошельке средств не хватает
+          alert('There are not enough picked tokens on your CST account && MetaMask wallet.');
+          return;
+        }
+      } else {
+
+      // Для отладки
+      console.log(' !!! enoght Tokens in account CST !!!');
+
+      // Выбранных токенов достаточно чтобы создать игру
+      // Перечисляем обернутые токены на счет смарт-контракта CST (в контракте CST)
+      var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
+      console.log('resultTransfer = ', resultTransfer);
+      if (resultTransfer != true) {
+        alert('Transfering failed');
+        return;
+      } else {
+        // Если ошибок нет - создается игра (ставим флаг создать игру)
+        flagGame = true;
+      }
+    }
+
+    // Обновляем баланс на экране
+    // Запрашиваем баланс у смарт-контракта CST
+    const currentBalance_ = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
+    if (currentBalance_ == -1) {
+      var err = new Error("Unable to get balance");
+      throw err;
+    } else {
+      var balanceField = document.getElementById('thisTokenBalance');
+      balanceField.value = currentBalance_;
+    }
+    console.log('currentBalance_ = ', currentBalance_);
+    if (!flagGame) {
+      alert("You can't create game");
+      return;
+    }
+
+// --------------------------------- Проверки создания игры --------------------------------------
+    console.log('Creating new game...');
+    var generalJSON_ = {
+      addr1: userEthAddr_,
+      addr1_kindTokenOfDeposit: kindToken_,
+      addr1_amountOfDeposit: amountToken_,
+      addr1_timeOfLockingDeposit: timestamp,
+      addr1_performed: -1,
+      addr2_performed: -1,
+      gameStarted: false,
+      gameFinished: false,
+      paid: false
+    };
+
+    var createGameJSON = {
+      whatIsIt: 'create',
+      generalJSON: generalJSON_
+    };
+
+    await myWsGame.send(JSON.stringify(createGameJSON));
+
+    // Показываем форму на экран
+    var hiddenForm = document.getElementById('hiddenForm');
+    hiddenForm.style.display = 'block';
+  }
+
+  if (mode == 'attach') {
+// --------------------------------- Проверки присоединения к игре --------------------------------------
+    var flagGame = false;
+    // Проверки со счетоми
+    var amountTokens = document.getElementById('amount_of_token');
+
+    /// Запрашиваем баланс у смарт-контракта CST
+    var userEthAddr = document.getElementById('user_eth_address');
+    var addressContractERC20 = document.getElementById('contractTokenAddressCreateJoin');
+    const currentBalance = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
+
+    console.log('currentBalance = ', currentBalance);
+    console.log('amountTokens.value = ', parseInt(amountTokens.value));
+    // Проверяем, хватает ли выбранных токенов на внутреннем счету
+    if (currentBalance < parseInt(amountTokens.value)) {
+
+      // Для отладки
+      console.log(' !!! [currentBalance < amountTokens.value] !!!');
+
+      // Если нет, проверяем есть ли у него выбранные токены на его MetaMask кошельке
+      var contractERC20_ = document.getElementById('contractTokenAddressCreateJoin');
+      const contractERC20 = new web3.eth.Contract(cryptoSteamContractABI, contractERC20_.value);
+      var userAddress = document.getElementById('user_eth_address');
+      var balanceContractERC20 = await contractERC20.methods.balanceOf(userAddress.value).call();
+      console.log('balanceContractERC20 = ', balanceContractERC20);
+
+      // Сколько не хватает
+      var deficiency = parseInt(amountTokens.value) - currentBalance;
+      if (balanceContractERC20 >= deficiency) {
+
+      // Для отладки
+      console.log(' !!! [balanceContractERC20 >= deficiency] !!!');
+
+        // Если с учетом средств на кошельке токенов достаточно, то
+        // Запрос на перевод ERC20 токенов пользователя на счет смартконтракта CST
+        let conf = confirm('There are not enough picked tokens on your CST account. Transfer missing amount from MetaMask wallet?');
+        if (!conf) {
+          return;
+        }
+        // Это тоже самое, что и поолнить счет
+        // Перевод пользователем токенов ERC20 на счет смарт-контракта CST
+
+          console.log('[deficiency] = ', deficiency);
+
+          var result = await sendERC20Tokens(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, deficiency);
+          console.log('result_sendERC20Tokens = ', result.status);
+          console.log('result_sendERC20Tokens_EVENTS = ', result.events);
+            if (!result.status) {alert('Error transaction'); return;}
+          var serverConfirm = false;
+          // отправляем запрос на сервер, ждем подтверждения
+          var data_ = { "receipt" : result , 'contractAddress' : addressContractERC20.value, 'addressUser' : userEthAddr.value, 'amount' : deficiency};
+           $.ajax({
+             contentType: 'application/json',
+             url: `http://${SERVER_IP_ADDRESS}:${SERVER_PORT}/approveTransaction/`,
+             method: 'post',             
+             dataType: 'json',         
+             data: JSON.stringify(data_),     
+             processData: false,
+             success: async function(data){            
+               serverConfirm = data.confirm;
+             },
+             async: false
+           });
+          if (!serverConfirm) {
+            alert('The server did not confirm the crediting of tokens');
+            return;
+          } else {
+            // Если сервер подтвердил (а значит уже и зачислил обернутые токены в смарт-контракте CST)
+            // Перепроверяем внутренний баланс
+            for (;;) {
+              var currentBalance_2 = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
+              if (currentBalance_2 >= parseInt(amountTokens.value)) {
+                console.log('Tokens successfully credited')
+                break;
+              }
+            }
+              console.log('Transfering to WERC20 in CST');
+              // Если токены пришли, то перечисляем их на счет смарт-контракта CST (в контракте CST)
+              var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
+              console.log('resultTransfer = ', resultTransfer);
+              if (resultTransfer != true) {
+                alert('Transfering failed');
+                return;
+              } else {
+                // Если ошибок нет - создается игра (ставим флаг создать игру)
+                flagGame = true;
+              }
+          }
+      } else {
+        // Даже с учетом токенов на MetaMask кошельке средств не хватает
+        alert('There are not enough picked tokens on your CST account && MetaMask wallet.');
+        return;
+      }
+    } else {
+
+      // Для отладки
+      console.log(' !!! enoght Tokens in account CST !!!');
+
+      // Выбранных токенов достаточно чтобы создать игру
+      // Перечисляем обернутые токены на счет смарт-контракта CST (в контракте CST)
+      var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
+      console.log('resultTransfer = ', resultTransfer);
+      if (resultTransfer != true) {
+        alert('Transfering failed');
+        return;
+      } else {
+        // Если ошибок нет - создается игра (ставим флаг создать игру)
+        flagGame = true;
+      }
+      
+    }
+
+    // Обновляем баланс на экране
+    // Запрашиваем баланс у смарт-контракта CST
+    const currentBalance_ = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
+    if (currentBalance_ == -1) {
+      var err = new Error("Unable to get balance");
+      throw err;
+    } else {
+      var balanceField = document.getElementById('thisTokenBalance');
+      balanceField.value = currentBalance_;
+    }
+    console.log('currentBalance_ = ', currentBalance_);
+
+    if (!flagGame) {
+      alert("You can't join game");
+      return;
+    }
+
+// --------------------------------- Проверка присоединения к игре --------------------------------------
+    // Находим необходимые данные на веб-странице
+    var userEthAddr = document.getElementById('user_eth_address');
+    const userEthAddr_ = userEthAddr.value;
+    console.log('userEthAddr_ = ', userEthAddr_);
+
+
+    var tokenSymbol_ = document.getElementById('contractTokenAddressCreateJoin');
+    const kindToken_ = tokenSymbol_.value;
+    console.log('kindToken_ = ', kindToken_);
+
+    var amountToken = document.getElementById('amount_of_token');
+    const amountToken_ = amountToken.value;
+    console.log('amountToken_ = ', amountToken_);
+
+    const currentDate = new Date();
+    const timestamp = currentDate.getTime(); // It is the number of milliseconds that have passed since January 1, 1970.
+
+    console.log('Joining to the game...');
+
+    console.log('check_gameID = ', gameID);
+    var generalJSON_ = {
+      gameID: gameID,
+      addr2: userEthAddr_,
+      addr2_kindTokenOfDeposit: kindToken_,
+      addr2_amountOfDeposit: amountToken_,
+      addr2_timeOfLockingDeposit: timestamp
+    };
+
+    var attachGameJSON = {
+      whatIsIt: 'attach',
+      generalJSON: generalJSON_
+    };
+
+    await myWsGame.send(JSON.stringify(attachGameJSON));
+    var hiddenForm = document.getElementById('hiddenForm');
+    hiddenForm.style.display = 'block';
+  
+  }
+};
+  // Обработчик сообщений от сервера
+  myWsGame.onmessage = function (message) {
+    const Document = JSON.parse(message.data);
+    console.log('Document: ', Document);
+
+    const whatIsIt = Document.whatIsIt;
+    const documentJSON = Document.generalJSON;
+
+    switch (whatIsIt) {
+      case 'gameCreated':
+        gameID = documentJSON.gameID;
+        break;
+      case 'gameAttached':
+        $("#statusGame").text("Opponent has joined").wrapInner("<strong />");
+        // Сделать видимым скрытый div
+        var gameStartedDiv = document.getElementById('gameStarted');
+        gameStartedDiv.style.display = 'block';
+        break;
+      case 'gameFinished':
+        // Заполняем элементы формы
+        $("#addrWin").text(documentJSON.addrWin).wrapInner("<strong />");
+        $("#addrLose").text(documentJSON.addrLose).wrapInner("<strong />");
+        $("#digitWin").text(documentJSON.addrWinDigit).wrapInner("<strong />");
+        $("#digitLose").text(documentJSON.addrLoseDigit).wrapInner("<strong />");
+        $("#digitServer").text(documentJSON.serverDigit).wrapInner("<strong />");
+        $("#userStatus").text(documentJSON.status).wrapInner("<strong />");
+        var userStatus = document.getElementById('userStatus');
+        if (documentJSON.status == 'win')
+        {
+          userStatus.style.color = 'blue';
+        } else {
+          userStatus.style.color = 'red';
+        }
+        
+        // Отображаем форму
+        var gameStartedDiv = document.getElementById('afterGameForm');
+        gameStartedDiv.style.display = 'block';
+        break;
+      case 'opponentLostConnection':
+        alert('Your opponent lost connection. Returning all rates.');
+        // Чтобы пользователь успел увидеть сообщение-alert
+        setTimeout(function() { 
+          console.log('Your opponent lost connection. Returning all rates.');
+          hideGameForms();
+        }, 10000);
+        
+        break;
+      default:
+        console.log('Unknow command');
+        break;
+    }
+  };
+}
+/// *********************************************************************************
 
 // Обработка выбора криптовалюты
 $(".default_option").click(function() {
@@ -486,7 +929,7 @@ async function checkEnought(chosenCrypto, amountTokens, decimalsToken0, chosenGa
    var data_ = { "addressToken0" : chosenCrypto, "amountToken0" : amountTokens, "decimalsToken0" : decimalsToken0, "addressToken1" : chosenGameKindToken, "amountToken1" : chosenGameAmountToken, "decimalsToken1" : decimalsToken1 };
    $.ajax({
      contentType: 'application/json',
-     url: `http://127.0.0.1:8080/getPrices/`,
+     url: `http://${SERVER_IP_ADDRESS}:${SERVER_PORT}/getPrices/`,
      method: 'post',             
      dataType: 'json',         
      data: JSON.stringify(data_),     
@@ -520,7 +963,6 @@ async function checkEnought(chosenCrypto, amountTokens, decimalsToken0, chosenGa
     // Сформировать JSON, что ставка пользователя мала
     enoughJSON.isEnough = 'few';
    }
-
     return enoughJSON;
  }
 
@@ -640,7 +1082,6 @@ $(".select_ul_2 li").click(async function(){
   var tokenDecimals_ = document.getElementById('tokenDecimals2');
   tokenDecimals_.innerHTML = await getContractDecimalsToken(contractAdressERC20_.value);
 
-
   if ((tokenName_.innerHTML == "UNKNOW") || (tokenSymbol_.innerHTML == "UNKNOW") || (tokenDecimals_.innerHTML == "UNKNOW")) {
     var buttonDeposit = document.getElementById('depositButton');
     buttonDeposit.disabled = true;
@@ -664,7 +1105,6 @@ $(".select_ul_2 li").click(async function(){
     buttonWithdraw.disabled = false;
   }
 
-  
 })
 
 function parseGameID(str) {
@@ -710,8 +1150,8 @@ function parseAmountTokens(str) {
     }
   }
   for (i = beginSymbol; i < str.length; i++) {
-    if (str.charAt(i) == " ") {
-      stopSymbol = i; // Первый символ числа
+    if (str.charAt(i) == "[") {
+      stopSymbol = i-1; // Первый символ числа после
       break;
     }
   }
@@ -722,6 +1162,7 @@ function parseAmountTokens(str) {
 // Обработчик динамически созданных объектов
 $('#listGames').on('click', 'ul li', function(){
   console.log('li.text = ', $(this).text());
+  
   // Парсим, чтобы вытащить GameID
   gameID = parseGameID($(this).text());
   console.log("gameID = ", gameID);
@@ -731,9 +1172,6 @@ $('#listGames').on('click', 'ul li', function(){
   console.log("amountTokens = ", amountTokens);
 
   // Получить вид токенов существующей ставки
-
-
-  parseAddress
   var kindToken = $(this).attr("id")
   console.log("kindToken = ", kindToken);
 
@@ -750,7 +1188,6 @@ $('#listGames').on('click', 'ul li', function(){
   var elem = document.getElementById('button1');
   elem.value = "JOIN";
   elem.disabled = true;
-
 });
 
 document.getElementById('checkbox1').addEventListener('change', function(event) {
@@ -800,7 +1237,6 @@ document.getElementById('checkboxCustomTokenCreateJoin').addEventListener('chang
     tokenInfo.style.display = 'none';
   }
 });
-
 
 document.getElementById('checkboxCustomTokenBalance').addEventListener('change', function(event) {
   var txt = event.target.checked ? 'On' : 'Off';
@@ -859,7 +1295,6 @@ $("#amount_of_token").change(async function(){
     console.log('amount elem.value = ', elem.value);
     if (elem.value != "") {
 
-
       var amountTokens0 = parseInt(elem.value);
       var tokenAddress0 = document.getElementById('contractTokenAddressCreateJoin');
       var decimals0 = document.getElementById('tokenDecimals');
@@ -881,9 +1316,10 @@ $("#amount_of_token").change(async function(){
           alert(alertMessageLot);
           break;
         case 'norm':
-          var elem2 = document.getElementById('createGameButton');
+          var elem2 = document.getElementById('button1');
           var elem_ = document.getElementById('amount_of_token');
           console.log('elem_.value = ', elem_.value);
+          elem.disabled = false;
           if (elem_.value != "") {
             elem2.disabled = false;
           } else {
@@ -958,7 +1394,6 @@ $("#contractTokenAddressBalance").change(async function(){
 
 });
 
-
 async function sendDigit() {
   var digitElem = document.getElementById('number');
   var userDigit = digitElem.value;
@@ -1008,11 +1443,11 @@ async function withdrawTokens() {
     console.log('result = ', result);
     if (!result) {alert('Error transaction'); return;}
     var serverConfirm = false;
-      // отправляем запрос на сервер, ждем подтверждения
+    // Отправляем запрос на сервер, ждем подтверждения
     var data_ = { "receipt" : result , 'contractAddress' : addressContractERC20.value, 'addressUser' : userEthAddr.value, 'amount' : amountTokens.value };
     $.ajax({
       contentType: 'application/json',
-      url: `http://127.0.0.1:8080/approveWithdraw/`,
+      url: `http://${SERVER_IP_ADDRESS}:${SERVER_PORT}/approveWithdraw/`,
       method: 'post',             
       dataType: 'json',         
       data: JSON.stringify(data_),     
@@ -1027,7 +1462,7 @@ async function withdrawTokens() {
       return;
     } else {
       // Если сервер подтвердил (а значит уже и зачислил обернутые токены в смарт-контракте CST)
-      // Перепроверяем внутренний баланс
+      /// Перепроверяем внутренний баланс
       console.log('Tokens successfully withdraw');
       alert('Tokens successfully withdraw!')
     }
@@ -1036,6 +1471,16 @@ async function withdrawTokens() {
     return;
 }
   console.log('Withdrawing...');
+}
+
+function showAdminPanel() {
+  document.getElementById('my_card_admin').style.display = "block";
+  document.getElementById('showAdminPanel').style.display = "none";
+}
+
+function hideAdminPanel() {
+  document.getElementById('my_card_admin').style.display = "none";
+  document.getElementById('showAdminPanel').style.display = "block";
 }
 
 main();
