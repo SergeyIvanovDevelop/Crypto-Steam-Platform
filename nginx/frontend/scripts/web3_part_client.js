@@ -36,12 +36,20 @@ async function sendERC20TokensCST (addressContractERC20, addressSender, amountTo
       gas: 2500000,
       data: ForeigenERC20Contract.methods.approve(cryptoSteamContractAddress, amountTokens).encodeABI()
     });
-    if (!receipt1.status) {alert('Error transaction sendERC20TokensCST APPROVE ERC20'); return false; }
+    if (!receipt1.status) {
+      customAlert('error', "Error transaction sendERC20TokensCST APPROVE ERC20");
+      //alert('Error transaction sendERC20TokensCST APPROVE ERC20'); 
+      return false; 
+    }
     
     // Проверка allowance и минтинг токенов
     var receipt2 = await ContractCST.methods.sendERC20TokensCST(addressContractERC20, amountTokens).send({ from: addressSender, gas:4000000 , gasPrice: 1000000000 });
     console.log('receipt_sendERC20TokensCST = ', receipt2);
-    if (!receipt2.status) {alert('Error transaction sendERC20TokensCST'); return false; }
+    if (!receipt2.status) {
+      customAlert('error', "Error transaction sendERC20TokensCST");
+      //alert('Error transaction sendERC20TokensCST');
+      return false; 
+    }
     return true;
   } catch (error) {
     console.log('try/catch_error = ', error);
@@ -118,11 +126,13 @@ async function connectMetaMaskWallet() {
       console.log("Yout MetaMask wallet connected");
     } catch (error) {
       console.log("Yout MetaMask wallet NOT connected");
-      alert('Please install MetaMask wallet');
+      customAlert('warning', "Please install MetaMask wallet");
+      //alert('Please install MetaMask wallet');
       console.error(error);
     }
   } else {
-    alert("Please install the MetaMask extension in your browser");
+    customAlert('warning', "Please install the MetaMask extension in your browser");
+    //alert("Please install the MetaMask extension in your browser");
     return;
   } 
   cryptoSteamContract = new web3.eth.Contract(cryptoSteamContractABI, cryptoSteamContractAddress);
@@ -180,7 +190,8 @@ async function connectMetaMaskWallet() {
     // Тут необходимо отобразить кнопку, которая при нажатии будет отображать панель с различной статистической информацией, доступной только для админа и кнопку для библиотеки PAUSABLE
     document.getElementById('showAdminPanel').style.display = "block";
 
-    alert("Hello admin ;)");
+    customAlert('info', "Hello admin ;)");
+    //alert("Hello admin ;)");
 
   } else {
     console.log('User is not admin');
@@ -198,6 +209,15 @@ async function connectMetaMaskWallet() {
       return;
     } // Если контракт не остановлен, тогда ничего не делаем 
   }
+
+  /*
+  // Тестирование кастомных alert'ов
+  customAlert("info", "textAlert1");
+  customAlert("success", "textAlert2");
+  customAlert("warning", "textAlert3");
+  customAlert("error", "textAlert4");
+  */
+
 }
 
 async function getContractNameToken(contractAdressERC20) {
@@ -316,7 +336,8 @@ async function switchStartStopContract() {
     const result = await startContract();
     if (!result) {
       console.log('Failed to start smart-contract');
-      alert('Failed to start smart-contract');
+      customAlert('error', "Failed to start smart-contract");
+      //alert('Failed to start smart-contract');
       return false;
     }
 
@@ -333,14 +354,16 @@ async function switchStartStopContract() {
     document.getElementById('button2').disabled = false;
 
     console.log('Smart-contract launched successfully');
-    alert('Smart-contract launched successfully');
+    customAlert('success', "Smart-contract launched successfully");
+    //alert('Smart-contract launched successfully');
     return true;
 
   } else if(paused == "STOP SMART-CONTRACT") { // Если сейчас контракт запущен
     const result = await stopContract();
     if (!result) {
       console.log('Failed to stop smart-contract');
-      alert('Failed to stop smart-contract');
+      customAlert('error', "Failed to stop smart-contract");
+      //alert('Failed to stop smart-contract');
       return false;
     }
 
@@ -357,7 +380,8 @@ async function switchStartStopContract() {
     document.getElementById('button2').disabled = true;
     
     console.log('Smart-contract stopped successfully');
-    alert('Smart-contract stopped successfully');
+    customAlert('success', "Smart-contract stopped successfully");
+    //alert('Smart-contract stopped successfully');
     return true;
   }
 }

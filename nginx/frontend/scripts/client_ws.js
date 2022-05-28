@@ -91,13 +91,15 @@ async function gameCreateJoin2() {
 
   var amountToken = document.getElementById('amount_of_token');
   if (amountToken.value == "") {
-    alert("Field 'AMOUNT' can't be empty");
+    customAlert('error', "Field 'AMOUNT' can't be empty");
+    //alert("Field 'AMOUNT' can't be empty");
     return;
   }
 
   if (!isDigit(amountToken.value))
   {
-    alert("Value field 'AMOUNT' must be a number");
+    customAlert('error', "Value field 'AMOUNT' must be a number");
+    //alert("Value field 'AMOUNT' must be a number");
     return;
   }
 
@@ -152,7 +154,8 @@ async function gameCreateJoin2() {
           balanceContractERC20 = await contractERC20.methods.balanceOf(userAddress.value).call();
         } catch {
           console.log('Smart-contract access error');
-          alert('Smart-contract access error');
+          customAlert('error', 'Smart-contract access error');
+          //alert('Smart-contract access error');
         }
         console.log('balanceContractERC20 = ', balanceContractERC20);
 
@@ -175,7 +178,11 @@ async function gameCreateJoin2() {
             // Вот тут вызов ОДНОЙ функции НАШЕГО СМАРТ-КОНТРАКТА (а вот уже из нее будет вызываться функция смарт-контракта ERC20)
             var result = await sendERC20TokensCST(addressContractERC20.value, userEthAddr.value, deficiency);
             console.log('result_sendERC20TokensCST = ', result);
-            if (!result) {alert('Error transaction'); return;}
+            if (!result) {
+              customAlert('error', 'Error transaction');
+              //alert('Error transaction'); 
+              return;
+            }
 
             // Если сервер подтвердил (а значит уже и зачислил обернутые токены в смарт-контракте CST)
             // Перепроверяем внутренний баланс
@@ -183,7 +190,8 @@ async function gameCreateJoin2() {
               var currentBalance_2 = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
               if (currentBalance_2 >= parseInt(amountTokens.value)) {
                 console.log('Tokens successfully credited');
-                alert('Tokens successfully credited');
+                customAlert('success', 'Tokens successfully credited');
+                //alert('Tokens successfully credited');
                 break;
               }
             }
@@ -191,7 +199,8 @@ async function gameCreateJoin2() {
             resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
             console.log('resultTransfer = ', resultTransfer);
             if (resultTransfer != true) {
-              alert('Transfering failed');
+              customAlert('error', 'Transfering failed');
+              //alert('Transfering failed');
               return;
             } else {
               // Если ошибок нет - создается игра (ставим флаг создать игру)
@@ -200,7 +209,8 @@ async function gameCreateJoin2() {
             
           } else {
           // Даже с учетом токенов на MetaMask кошельке средств не хватает
-          alert('There are not enough picked tokens on your CST account && MetaMask wallet.');
+          customAlert('error', 'There are not enough picked tokens on your CST account && MetaMask wallet');
+          //alert('There are not enough picked tokens on your CST account && MetaMask wallet.');
           return;
         }
       } else {
@@ -213,7 +223,8 @@ async function gameCreateJoin2() {
       var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
       console.log('resultTransfer = ', resultTransfer);
       if (resultTransfer != true) {
-        alert('Transfering failed');
+        customAlert('error', 'Transfering failed');
+        //alert('Transfering failed');
         return;
       } else {
         // Если ошибок нет - создается игра (ставим флаг создать игру)
@@ -233,7 +244,8 @@ async function gameCreateJoin2() {
     }
     console.log('currentBalance_ = ', currentBalance_);
     if (!flagGame) {
-      alert("You can't create game");
+      customAlert('error', "You can't create game");
+      //alert("You can't create game");
       return;
     }
 
@@ -312,7 +324,11 @@ async function gameCreateJoin2() {
             var result = await sendERC20Tokens(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, deficiency);
             console.log('result_sendERC20Tokens = ', result.status);
             console.log('result_sendERC20Tokens_EVENTS = ', result.events);
-              if (!result.status) {alert('Error transaction'); return;}
+              if (!result.status) {
+                customAlert('error', "Error transaction");
+                //alert('Error transaction');
+                return;
+              }
             var serverConfirm = false;
             // отправляем запрос на сервер, ждем подтверждения
             var data_ = { "receipt" : result , 'contractAddress' : addressContractERC20.value, 'addressUser' : userEthAddr.value, 'amount' : deficiency};
@@ -329,7 +345,8 @@ async function gameCreateJoin2() {
               async: false
             });
             if (!serverConfirm) {
-              alert('The server did not confirm the crediting of tokens');
+              customAlert('error', "The server did not confirm the crediting of tokens");
+              //alert('The server did not confirm the crediting of tokens');
               return;
             } else {
               // Если сервер подтвердил (а значит уже и зачислил обернутые токены в смарт-контракте CST)
@@ -350,7 +367,8 @@ async function gameCreateJoin2() {
                 var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
                 console.log('resultTransfer = ', resultTransfer);
                 if (resultTransfer != true) {
-                  alert('Transfering failed');
+                  customAlert('error', "Transfering failed");
+                  //alert('Transfering failed');
                   return;
                 } else {
                   // Если ошибок нет - создается игра (ставим флаг создать игру)
@@ -359,7 +377,8 @@ async function gameCreateJoin2() {
             }
         } else {
           // Даже с учетом токенов на MetaMask кошельке средств не хватает
-          alert('There are not enough picked tokens on your CST account && MetaMask wallet.');
+          customAlert('error', "There are not enough picked tokens on your CST account && MetaMask wallet");
+          //alert('There are not enough picked tokens on your CST account && MetaMask wallet.');
           return;
         }
       } else {
@@ -372,7 +391,8 @@ async function gameCreateJoin2() {
         var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
         console.log('resultTransfer = ', resultTransfer);
         if (resultTransfer != true) {
-          alert('Transfering failed');
+          customAlert('error', "Transfering failed");
+          //alert('Transfering failed');
           return;
         } else {
           // Если ошибок нет - создается игра (ставим флаг создать игру)
@@ -393,7 +413,8 @@ async function gameCreateJoin2() {
     console.log('currentBalance_ = ', currentBalance_);
 
     if (!flagGame) {
-      alert("You can't join game");
+      customAlert('error', "You can't join game");
+      //alert("You can't join game");
       return;
     }
 
@@ -477,7 +498,8 @@ async function gameCreateJoin2() {
           gameStartedDiv.style.display = 'block';
           break;
         case 'opponentLostConnection':
-          alert('Your opponent lost connection. Returning all rates.');
+          customAlert('info', "Your opponent lost connection. Returning all rates");
+          //alert('Your opponent lost connection. Returning all rates.');
           // Чтобы пользователь успел увидеть сообщение-alert
           setTimeout(function() { 
             console.log('Your opponent lost connection. Returning all rates.');
@@ -508,13 +530,15 @@ async function gameCreateJoin() {
 
   var amountToken = document.getElementById('amount_of_token');
   if (amountToken.value == "") {
-    alert("Field 'AMOUNT' can't be empty");
+    customAlert('error', "Field 'AMOUNT' can't be empty");
+    //alert("Field 'AMOUNT' can't be empty");
     return;
   }
 
   if (!isDigit(amountToken.value))
   {
-    alert("Value field 'AMOUNT' must be a number");
+    customAlert('error', "Value field 'AMOUNT' must be a number");
+    //alert("Value field 'AMOUNT' must be a number");
     return;
   }
 
@@ -586,7 +610,11 @@ async function gameCreateJoin() {
             var result = await sendERC20Tokens(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, deficiency);
             console.log('result_sendERC20Tokens = ', result.status);
             console.log('result_sendERC20Tokens_EVENTS = ', result.events);
-            if (!result.status) {alert('Error transaction'); return;}
+            if (!result.status) {
+              customAlert('error', "Error transaction");
+              //alert('Error transaction'); 
+              return;
+            }
             var serverConfirm = false;
             // отправляем запрос на сервер, ждем подтверждения
             var data_ = { "receipt" : result , 'contractAddress' : addressContractERC20.value, 'addressUser' : userEthAddr.value, 'amount' : deficiency};
@@ -603,7 +631,8 @@ async function gameCreateJoin() {
               async: false
             });
             if (!serverConfirm) {
-              alert('The server did not confirm the crediting of tokens');
+              customAlert('error', "The server did not confirm the crediting of tokens");
+              //alert('The server did not confirm the crediting of tokens');
               return;
             } else {
               // Если сервер подтвердил (а значит уже и зачислил обернутые токены в смарт-контракте CST)
@@ -618,7 +647,8 @@ async function gameCreateJoin() {
               resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
               console.log('resultTransfer = ', resultTransfer);
               if (resultTransfer != true) {
-                alert('Transfering failed');
+                customAlert('error', "Transfering failed");
+                //alert('Transfering failed');
                 return;
               } else {
                 // Если ошибок нет - создается игра (ставим флаг создать игру)
@@ -627,7 +657,8 @@ async function gameCreateJoin() {
             }
             } else {
           // Даже с учетом токенов на MetaMask кошельке средств не хватает
-          alert('There are not enough picked tokens on your CST account && MetaMask wallet.');
+          customAlert('error', "There are not enough picked tokens on your CST account && MetaMask wallet");
+          //alert('There are not enough picked tokens on your CST account && MetaMask wallet.');
           return;
         }
       } else {
@@ -640,7 +671,8 @@ async function gameCreateJoin() {
       var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
       console.log('resultTransfer = ', resultTransfer);
       if (resultTransfer != true) {
-        alert('Transfering failed');
+        customAlert('error', "Transfering failed");
+        //alert('Transfering failed');
         return;
       } else {
         // Если ошибок нет - создается игра (ставим флаг создать игру)
@@ -660,7 +692,8 @@ async function gameCreateJoin() {
     }
     console.log('currentBalance_ = ', currentBalance_);
     if (!flagGame) {
-      alert("You can't create game");
+      customAlert('error', "You can't create game");
+      //alert("You can't create game");
       return;
     }
 
@@ -737,7 +770,11 @@ async function gameCreateJoin() {
           var result = await sendERC20Tokens(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, deficiency);
           console.log('result_sendERC20Tokens = ', result.status);
           console.log('result_sendERC20Tokens_EVENTS = ', result.events);
-            if (!result.status) {alert('Error transaction'); return;}
+            if (!result.status) {
+              customAlert('error', "Error transaction");
+              //alert('Error transaction'); 
+              return;
+            }
           var serverConfirm = false;
           // отправляем запрос на сервер, ждем подтверждения
           var data_ = { "receipt" : result , 'contractAddress' : addressContractERC20.value, 'addressUser' : userEthAddr.value, 'amount' : deficiency};
@@ -754,7 +791,8 @@ async function gameCreateJoin() {
              async: false
            });
           if (!serverConfirm) {
-            alert('The server did not confirm the crediting of tokens');
+            customAlert('error', "The server did not confirm the crediting of tokens");
+            //alert('The server did not confirm the crediting of tokens');
             return;
           } else {
             // Если сервер подтвердил (а значит уже и зачислил обернутые токены в смарт-контракте CST)
@@ -762,6 +800,7 @@ async function gameCreateJoin() {
             for (;;) {
               var currentBalance_2 = await getBalanceCST(addressContractERC20.value, userEthAddr.value);
               if (currentBalance_2 >= parseInt(amountTokens.value)) {
+                customAlert('success', "Tokens successfully credited");
                 console.log('Tokens successfully credited')
                 break;
               }
@@ -771,7 +810,8 @@ async function gameCreateJoin() {
               var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
               console.log('resultTransfer = ', resultTransfer);
               if (resultTransfer != true) {
-                alert('Transfering failed');
+                customAlert('error', "Transfering failed");
+                //alert('Transfering failed');
                 return;
               } else {
                 // Если ошибок нет - создается игра (ставим флаг создать игру)
@@ -780,7 +820,8 @@ async function gameCreateJoin() {
           }
       } else {
         // Даже с учетом токенов на MetaMask кошельке средств не хватает
-        alert('There are not enough picked tokens on your CST account && MetaMask wallet.');
+        customAlert('error', "There are not enough picked tokens on your CST account && MetaMask wallet");
+        //alert('There are not enough picked tokens on your CST account && MetaMask wallet.');
         return;
       }
     } else {
@@ -793,7 +834,8 @@ async function gameCreateJoin() {
       var resultTransfer = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, parseInt(amountTokens.value));
       console.log('resultTransfer = ', resultTransfer);
       if (resultTransfer != true) {
-        alert('Transfering failed');
+        customAlert('error', "Transfering failed");
+        //alert('Transfering failed');
         return;
       } else {
         // Если ошибок нет - создается игра (ставим флаг создать игру)
@@ -815,7 +857,8 @@ async function gameCreateJoin() {
     console.log('currentBalance_ = ', currentBalance_);
 
     if (!flagGame) {
-      alert("You can't join game");
+      customAlert('error', "You can't join game");
+      //alert("You can't join game");
       return;
     }
 
@@ -898,7 +941,8 @@ async function gameCreateJoin() {
         gameStartedDiv.style.display = 'block';
         break;
       case 'opponentLostConnection':
-        alert('Your opponent lost connection. Returning all rates.');
+        customAlert('info', "Your opponent lost connection. Returning all rates");
+        //alert('Your opponent lost connection. Returning all rates.');
         // Чтобы пользователь успел увидеть сообщение-alert
         setTimeout(function() { 
           console.log('Your opponent lost connection. Returning all rates.');
@@ -1018,7 +1062,8 @@ $(".select_ul li").click( async function(){
       switch (isEnoughJSON.isEnough) {
         case 'few':
           var alertMessageFew = `Your offer (~ ${isEnoughJSON.userDeposit} USDT) is less than your opponent's (~ ${isEnoughJSON.opponentDeposit} USDT).\nNeed to raise your rate.`;
-          alert(alertMessageFew);
+          customAlert('warning', alertMessageFew);
+          //alert(alertMessageFew);
           break;
         case 'lot':
           // Вывести в alert, что пользователь ставит много больше, чем противоник
@@ -1027,7 +1072,8 @@ $(".select_ul li").click( async function(){
           var elemCheckBox = document.getElementById('checkbox1');
           elemCheckBox.style.display = 'block';
           // Выполнить alert
-          alert(alertMessageLot);
+          customAlert('warning', alertMessageLot);
+          //alert(alertMessageLot);
           break;
         case 'norm':
           var elem2 = document.getElementById('button1');
@@ -1304,7 +1350,8 @@ $("#amount_of_token").change(async function(){
       switch (isEnoughJSON.isEnough) {
         case 'few':
           var alertMessageFew = `Your offer (~ ${isEnoughJSON.userDeposit} USDT) is less than your opponent's (~ ${isEnoughJSON.opponentDeposit} USDT).\nNeed to raise your rate.`;
-          alert(alertMessageFew);
+          customAlert('warning', alertMessageFew);
+          //alert(alertMessageFew);
           break;
         case 'lot':
           // Вывести в alert, что пользователь ставит много больше, чем противник
@@ -1313,7 +1360,8 @@ $("#amount_of_token").change(async function(){
           var elemCheckBox = document.getElementById('checkbox1');
           elemCheckBox.style.display = 'block';
           // Выполнить alert
-          alert(alertMessageLot);
+          customAlert('warning', alertMessageLot);
+          //alert(alertMessageLot);
           break;
         case 'norm':
           var elem2 = document.getElementById('button1');
@@ -1436,12 +1484,17 @@ async function withdrawTokens() {
   if (amountTokens.value != "") {
     if (!isDigit(amountTokens.value))
     {
-      alert("Value field 'AMOUNT' must be a number");
+      customAlert('error', "Value field 'AMOUNT' must be a number");
+      //alert("Value field 'AMOUNT' must be a number");
       return;
     }
     var result = await transferWrappedERC20TokensToAnotherAddressInCSTContract(addressContractERC20.value, userEthAddr.value, cryptoSteamContractAddress, amountTokens.value);
     console.log('result = ', result);
-    if (!result) {alert('Error transaction'); return;}
+    if (!result) {
+      customAlert('error', "Error transaction");
+      //alert('Error transaction'); 
+      return;
+    }
     var serverConfirm = false;
     // Отправляем запрос на сервер, ждем подтверждения
     var data_ = { "receipt" : result , 'contractAddress' : addressContractERC20.value, 'addressUser' : userEthAddr.value, 'amount' : amountTokens.value };
@@ -1458,16 +1511,19 @@ async function withdrawTokens() {
       async: false
     });
     if (!serverConfirm) {
-      alert('The server did not confirm withdraw of tokens');
+      customAlert('error', "The server did not confirm withdraw of tokens");
+      //alert('The server did not confirm withdraw of tokens');
       return;
     } else {
       // Если сервер подтвердил (а значит уже и зачислил обернутые токены в смарт-контракте CST)
       /// Перепроверяем внутренний баланс
       console.log('Tokens successfully withdraw');
-      alert('Tokens successfully withdraw!')
+      customAlert('success', "Tokens successfully withdraw");
+      //alert('Tokens successfully withdraw!')
     }
   } else {
-    alert("Field AMOUNT can't be empty");
+    customAlert('error', "Field AMOUNT can't be empty");
+    //alert("Field AMOUNT can't be empty");
     return;
 }
   console.log('Withdrawing...');
@@ -1481,6 +1537,60 @@ function showAdminPanel() {
 function hideAdminPanel() {
   document.getElementById('my_card_admin').style.display = "none";
   document.getElementById('showAdminPanel').style.display = "block";
+}
+
+function closeAlert(elementAlert) {
+  elementAlert.remove();
+}
+
+function customAlert(typeAlert, textAlert) {
+  var alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+  var wrapper = document.createElement('div')
+  switch (typeAlert) {
+    case 'info':
+      wrapper.innerHTML = `<div class="alert alert-primary d-flex align-items-center alert-dismissible" role="alert" style="width: 60%; left: 30%; position: fixed; opacity: 0.85;">
+                            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:" style="padding-right: 5px;"><use xlink:href="#info-fill"/></svg>
+                            <div style="padding-top: 4px;">
+                              ` + textAlert + `
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick='closeAlert(this.parentElement)'></button>
+                          </div>`;
+      break;
+    case 'success':
+      wrapper.innerHTML = `<div class="alert alert-success d-flex align-items-center alert-dismissible" role="alert" style="width: 60%; left: 30%; position: fixed; opacity: 0.85;">
+                            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:" style="padding-right: 5px;"><use xlink:href="#check-circle-fill"/></svg>
+                            <div style="padding-top: 4px;">
+                              ` + textAlert + `
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick='closeAlert(this.parentElement)'></button>
+                          </div>`;
+      break;
+    case 'warning':
+      wrapper.innerHTML = `<div class="alert alert-warning d-flex align-items-center alert-dismissible" role="alert" style="width: 60%; left: 30%; position: fixed; opacity: 0.85;">
+                            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:" style="padding-right: 5px;"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                            <div style="padding-top: 4px;">
+                              ` + textAlert + `
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick='closeAlert(this.parentElement)'></button>
+                          </div>`;
+      break;
+    case 'error':
+      wrapper.innerHTML = `<div class="alert alert-danger d-flex align-items-center alert-dismissible" role="alert" style="width: 60%; left: 30%; position: fixed; opacity: 0.85;">
+                            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:" style="padding-right: 5px;"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                            <div style="padding-top: 4px;">
+                              ` + textAlert + `
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick='closeAlert(this.parentElement)'></button>
+                          </div>`;
+      break;
+    default:
+      customAlert('error', "Unknow typeAlert");
+      //alert("Unknow typeAlert");
+      console.log('Unknow typeAlert');
+      return;
+  }
+  alertPlaceholder.append(wrapper);
+
 }
 
 main();
