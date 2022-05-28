@@ -13,4 +13,4 @@ COPY truffle_config/truffle-config.js /home/truffle_folder/truffle-config.js
 COPY ./stop_truffle.js /home/truffle_folder/stop_truffle.js
 COPY ./run_tests.sh /home/truffle_folder/run_tests.sh
 #RUN cd /home/truffle_folder && echo -e "truffle test\ntruffle exec ./stop_truffle.js" | truffle develop #./run_tests.sh
-CMD cd /home/truffle_folder && echo -e "migrate -f 2 --to 2 --reset --network develop" | truffle develop
+CMD cd /home/truffle_folder && echo -e "truffle migrate -f 2 --to 2 --reset --network develop" | truffle develop
