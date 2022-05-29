@@ -53,9 +53,10 @@ _Create test blockchain network & deploy smart-contract_<br>
 5. Push the code from this branch to your GitHub repository: ```git push -u origin solidity```<br>
 6. Change to the `develop-solidity` branch: ```git checkout develop-solidity```<br>
 7. Merging code from the `solidity` branch into the `develop-solidity` branch: ```git merge solidity```<br>
-8. Push the code from this branch to your GitHub repository: ```git push -u origin develop-solidity```. This action should start the CI/CD process using GitHub Actions. As a result, a `truffle develop` test network will be deployed on your remote machine (via ssh). It is to it that you will need to connect using the [MetaMask](https://metamask.io/) extension to interact with the platform.<br>_IMPORTANT: Make sure the contract is deployed by truffle successfull (see logs of deployment job in branch `develop-solidity`.) !!!_<br>
+8. Push the code from this branch to your GitHub repository: ```git push -u origin develop-solidity```. This action should start the CI/CD process using GitHub Actions. As a result, a `truffle develop` test network will be deployed on your remote machine (via ssh). It is to it that you will need to connect using the [MetaMask](https://metamask.io/) extension to interact with the platform.<br>_IMPORTANT: Make sure the contract is deployed by truffle successfull (see logs of deployment job in branch `develop-solidity`)!!!_<br>
 
 _Server Deployment_<br>
+
 9. Change to the `backend` branch: ```git checkout backend```<br>
 10. Push the code from this branch to your GitHub repository: ```git push -u origin backend```<br>
 11. Change to the `develop-backend` branch: ```git checkout develop-backend```<br>
@@ -63,12 +64,13 @@ _Server Deployment_<br>
 13. Push the code from this branch to your GitHub repository: ```git push -u origin develop-backend```. This action should start the CI/CD process using GitHub Actions. As a result, a server will be deployed on your remote machine (via ssh).<br>
 
 _Deploying a site with nginx_<br>
+
 14. Change to the `frontend` branch: ```git checkout frontend```<br>
 15. Push the code from this branch to your GitHub repository: ```git push -u origin frontend```<br>
 16. Change to the `develop-frontend` branch: ```git checkout develop-frontend```<br>
 17. Merging code from the `frontend` branch into the `develop-frontend` branch: ```git merge frontend```<br>
 18. Push the code from this branch to your GitHub repository: ```git push -u origin develop-frontend```. This action should start the CI/CD process using GitHub Actions. As a result, a nginx-server with site will be deployed on your remote machine (via ssh).<br>
-To visit the site, you need to drive in the search bar of the browser (tested only in the Google Chrome browser _Version 98.0.4758.102 (Official build), (64 bit)_): `http://<REMOTE_HOST_SSH_IP-ADDRESS>:8888/`<br>
+	To visit the site, you need to drive in the search bar of the browser (tested only in the Google Chrome browser _Version 98.0.4758.102 (Official build), (64 bit)_): `http://<REMOTE_HOST_SSH_IP-ADDRESS>:8888/`<br>
 
 **Congratulations, you have successfully deployed the project!**<br>
 
