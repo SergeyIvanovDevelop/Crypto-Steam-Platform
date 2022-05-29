@@ -34,16 +34,21 @@ The project architecture is planned for its deployment through the CI/CD mechani
 
 
 **Step 1**
+
 1. Go to home directory and clone repository from github: `cd ~ && git clone https://SergeyIvanovDevelop@github.com/SergeyIvanovDevelop/Crypto-Steam-Platform`
 
 **Step 2**<br>
-2. Go to the directory of the downloaded repository: ```cd ~/Crypto-Steam-Platform```
+
+2. Go to the directory of the downloaded repository: `cd ~/Crypto-Steam-Platform`
 
 **Step 3**<br>
-3. Change the origin value for the git repository to your GitHub repository: ```git remote set-url origin <YOUR_GITHUB_REPOSITORY>```
+
+3. Change the origin value for the git repository to your GitHub repository: `git remote set-url origin <YOUR_GITHUB_REPOSITORY>`
 
 **Step 4**<br>
+
 _Create test blockchain network & deploy smart-contract_<br>
+
 4. Change to the `solidity` branch: ```git checkout solidity```<br>
 5. Push the code from this branch to your GitHub repository: ```git push -u origin solidity```<br>
 6. Change to the `develop-solidity` branch: ```git checkout develop-solidity```<br>
