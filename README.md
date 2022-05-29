@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/SergeyIvanovDevelop/Crypto-Steam-Platform">
-    <img alt="Crypto Steam Platform" src="./resources/SCP.png" />
+    <img alt="Crypto Steam Platform" src="./resources/CSP.png" />
   </a>
 </p>
 <h1 align="center">
