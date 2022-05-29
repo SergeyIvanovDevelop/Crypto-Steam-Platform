@@ -33,7 +33,7 @@ The project architecture is planned for its deployment through the CI/CD mechani
   - Your DockerHub username password: `DOCKER_PASSWORD`
 
 
-**Step 1**<br>
+**Step 1**
 1. Go to home directory and clone repository from github: ```cd ~ && git clone https://SergeyIvanovDevelop@github.com/SergeyIvanovDevelop/Crypto-Steam-Platform```
 
 **Step 2**<br>
