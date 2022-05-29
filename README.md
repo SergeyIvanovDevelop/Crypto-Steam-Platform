@@ -32,19 +32,19 @@ The project architecture is planned for its deployment through the CI/CD mechani
   - Your DockerHub username: `DOCKER_USERNAME`
   - Your DockerHub username password: `DOCKER_PASSWORD`
 
-** Step 1 **
+**Step 1**
 
-1. Go to home directory and clone repository from github: ```cd ~ && git clone https://SergeyIvanovDevelop@github.com/SergeyIvanovDevelop/Crypto-Steam-Platform```
+Go to home directory and clone repository from github: ```cd ~ && git clone https://SergeyIvanovDevelop@github.com/SergeyIvanovDevelop/Crypto-Steam-Platform```
 
-** Step 2 **
+**Step 2**
 
-2. Go to the directory of the downloaded repository: ```cd ~/Crypto-Steam-Platform```
+Go to the directory of the downloaded repository: ```cd ~/Crypto-Steam-Platform```
 
-** Step 3 **
+**Step 3**
 
-3. Change the origin value for the git repository to your GitHub repository: ```git remote set-url origin <YOUR_GITHUB_REPOSITORY>```
+Change the origin value for the git repository to your GitHub repository: ```git remote set-url origin <YOUR_GITHUB_REPOSITORY>```
 
-** Step 4 **
+**Step 4**
 
 _Create test blockchain network & deploy smart-contract_
 4. Change to the `solidity` branch: ```git checkout solidity```
