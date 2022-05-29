@@ -34,7 +34,7 @@ The project architecture is planned for its deployment through the CI/CD mechani
 
 
 **Step 1**
-1. Go to home directory and clone repository from github: ```cd ~ && git clone https://SergeyIvanovDevelop@github.com/SergeyIvanovDevelop/Crypto-Steam-Platform```
+1. Go to home directory and clone repository from github: `cd ~ && git clone https://SergeyIvanovDevelop@github.com/SergeyIvanovDevelop/Crypto-Steam-Platform`
 
 **Step 2**<br>
 2. Go to the directory of the downloaded repository: ```cd ~/Crypto-Steam-Platform```
