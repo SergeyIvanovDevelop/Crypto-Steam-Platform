@@ -17,7 +17,7 @@ The project is built on the Ethereum blockchain and also contains a server part.
 
 The project architecture is planned for its deployment through the CI/CD mechanism. In order for you to run a local copy of the entire project, follow these steps.
 
-### :cd: Installation guid via CI/CD _(LINUX only ![This is an image](./resources/linux.png))_###
+### :cd: Installation guid via CI/CD ([LINUX only ![This is an image](./resources/linux.png)])
 
 **** In order to be able to deploy a project, a number of prerequisites must be met: ****
 
