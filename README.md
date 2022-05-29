@@ -69,15 +69,14 @@ _Deploying a site with nginx_<br>
 15. Push the code from this branch to your GitHub repository: ```git push -u origin frontend```<br>
 16. Change to the `develop-frontend` branch: ```git checkout develop-frontend```<br>
 17. Merging code from the `frontend` branch into the `develop-frontend` branch: ```git merge frontend```<br>
-18. Push the code from this branch to your GitHub repository: ```git push -u origin develop-frontend```. This action should start the CI/CD process using GitHub Actions. As a result, a nginx-server with site will be deployed on your remote machine (via ssh).<br>
-	To visit the site, you need to drive in the search bar of the browser (tested only in the Google Chrome browser _Version 98.0.4758.102 (Official build), (64 bit)_): `http://<REMOTE_HOST_SSH_IP-ADDRESS>:8888/`<br>
+18. Push the code from this branch to your GitHub repository: ```git push -u origin develop-frontend```. This action should start the CI/CD process using GitHub Actions. As a result, a nginx-server with site will be deployed on your remote machine (via ssh). To visit the site, you need to drive in the search bar of the browser (tested only in the Google Chrome browser _Version 98.0.4758.102 (Official build), (64 bit)_): `http://<REMOTE_HOST_SSH_IP-ADDRESS>:8888/`<br>
 
-**Congratulations, you have successfully deployed the project!**<br>
+***Congratulations, you have successfully deployed the project!***<br>
 
 ### :heavy_check_mark: Using project ###
 
 **In order to start using the project after its deployment, you must:**<br>
-1. Install MetaMask Wallet (GoogleChrome browser extension).<br>
+1. Install MetaMask Wallet (Google Chrome browser extension).<br>
 2. Import the wallet whose mnemonic is in the logs of deployment job in branch `develop-solidity` (where truffle created test network).<br>
 3. Import CST (Crypto Steam Token) token for this account, which are automatically credited to this account when deploying a smart contract. The smart contract address of the CST token will also be in the logs of deployment job in branch `develop-solidity` (where truffle created test network). Should be 18 CST.<br>
 4. Open a second GoogleChrome window and sign in with a different Google account than the one in the first window (or don't sign in to any account at all). Install MetaMask Wallet (Google Chrome browser extension).<br>
@@ -98,8 +97,9 @@ _Deploying a site with nginx_<br>
 19. After the end of the game (or disconnection), you can check the balances of users.<br>
 20. Note: if the MetaMask wallet of the smart contract creator is connected to the site, then the administration panel will be available, with which you can start/stop this smart contract (using the [pausable library](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/security/Pausable.sol)).<br>
 
-**Example using (GIF):**<br>
-This animation demonstrates scenarios for using the Crypto Steam Platform.<br>
+**:clapper: Example using (GIF):**<br>
+
+	This animation demonstrates scenarios for using the Crypto Steam Platform.<br>
 ![](./resources/CSP.gif)
 
 ### :bookmark_tabs: Licence ###
