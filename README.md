@@ -22,7 +22,7 @@ The project architecture is planned for its deployment through the CI/CD mechani
 **In order to be able to deploy a project, a number of prerequisites must be met:**
 
 - You need to create a [GitHub](https://github.com) repository to which you will push code from ***this repository***.
-- You need to create an account on [DokcerHub](https://hub.docker.com/).
+- You need to create an account on [DockerHub](https://hub.docker.com/).
 - You must have a remote machine with [docker](https://www.docker.com/), [docker-compose](https://docs.docker.com/compose/) and [openssh-server](https://www.openssh.com/) installed. *Ports on SSH must be opened (check this with [iptables](https://en.wikipedia.org/wiki/Iptables)).*
 - You must create secret variables in your github repository under `GitHub Secrets`: `<YOUR_REPO_NAME>` :arrow_right: `Settings` :arrow_right: `Secrets` :arrow_right: `Actions` :arrow_right: `New repository secret`. List of variables:
 
