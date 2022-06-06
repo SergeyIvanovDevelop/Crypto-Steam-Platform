@@ -103,7 +103,6 @@ This animation demonstrates scenarios for using the Crypto Steam Platform.<br>
 <p align="center">
   <img src="./resources/CSP.gif" alt="animated" />
 </p>
-![](./resources/CSP.gif)
 
 ### :bookmark_tabs: Licence ###
 Crypto Steam Platform is [CC BY-NC-SA 3.0 licensed](./LICENSE).
