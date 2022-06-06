@@ -100,7 +100,9 @@ _Deploying a site with nginx_<br>
 **:clapper: Example using (GIF):**<br>
 
 This animation demonstrates scenarios for using the Crypto Steam Platform.<br>
-
+<p align="center">
+  <img src="./resources/CSP.gif" alt="animated" />
+</p>
 ![](./resources/CSP.gif)
 
 ### :bookmark_tabs: Licence ###
